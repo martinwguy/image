@@ -9,25 +9,14 @@
 
 #include <gtk/gtk.h>
 
-static GtkWidget *window;
+static void openFile(GtkWidget *widget, gpointer data);
 
-static void
-openFile(GtkWidget *widget, gpointer data)
-{
-    GtkImage *image = GTK_IMAGE(data);
-    GtkWidget *dialog = gtk_file_chooser_dialog_new ("Open File",
-				      GTK_WINDOW(window),
-				      GTK_FILE_CHOOSER_ACTION_OPEN,
-				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-				      NULL);
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
-	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-	gtk_image_set_from_file(image, filename);
-	g_free (filename);
-    }
-    gtk_widget_destroy (dialog);
-}
+// openFile() needs both "window" to open the dialog and "image" to be able
+// to change the displayed image. We should put them both in a struct and pass
+// a pointer to that as the callback data but I can't be bothered.
+// Instead, make "window" global. After all, there's only ever goona be one.
+
+static GtkWidget *window;
 
 int
 main(int argc, char **argv)
@@ -44,7 +33,7 @@ main(int argc, char **argv)
 
     GtkAccelGroup *accel_group;
 
-    // If filename not given, new_from_file gives a default icon
+    // If filename not given, new_from_file gives a little default no-image icon
     char *imageFilename = "";
 
     gtk_init(&argc, &argv);
@@ -89,4 +78,22 @@ main(int argc, char **argv)
     gtk_main();
 
     return 0;
+}
+
+static void
+openFile(GtkWidget *widget, gpointer data)
+{
+    GtkImage *image = GTK_IMAGE(data);
+    GtkWidget *dialog = gtk_file_chooser_dialog_new ("Open File",
+				      GTK_WINDOW(window),
+				      GTK_FILE_CHOOSER_ACTION_OPEN,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      NULL);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	gtk_image_set_from_file(image, filename);
+	g_free (filename);
+    }
+    gtk_widget_destroy (dialog);
 }
