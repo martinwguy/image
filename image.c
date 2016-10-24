@@ -84,16 +84,17 @@ static void
 openFile(GtkWidget *widget, gpointer data)
 {
     GtkImage *image = GTK_IMAGE(data);
-    GtkWidget *dialog = gtk_file_chooser_dialog_new ("Open File",
+    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
-    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	gtk_image_set_from_file(image, filename);
-	g_free (filename);
+	g_free(filename);
     }
     gtk_widget_destroy (dialog);
+    gtk_window_resize(GTK_WINDOW(window), 1, 1);
 }
