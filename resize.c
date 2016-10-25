@@ -1,13 +1,21 @@
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-gboolean resize_image(GtkWidget *widget, GdkEvent *event, GtkWidget *window)
+/* The window has been exposed, maybe because it has been resized.
+ * If it was resized, scale the image to fit.
+ *
+ * If a "delete-event" callback returns FALSE, GTK emits a "destroy" signal;
+ * if it returns TRUE, the window is not destroyed.
+ * In our case, "expose_event", we have to return FALSE for the window to be
+ * repainted. If we return TRUE, it is not repainted.
+ */
+gboolean resize_image(GtkWidget *widget, GdkEvent *event, gpointer *data)
 {
     GdkPixbuf *pixbuf =	gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (pixbuf == NULL)
     {
 	    g_printerr("Failed to resize image\n");
-	    return 1;
+	    return TRUE;
     }
 
 g_print("Width: %i  Height: %i\n", widget->allocation.width,
@@ -22,7 +30,7 @@ g_print("Width: %i  Height: %i\n", widget->allocation.width,
 	    pixbuf, widget->allocation.width, widget->allocation.height,
 	    GDK_INTERP_BILINEAR)
 	);
-	gdk_pixbuf_unref(pixbuf);  // Free the old image
+	g_object_unref(pixbuf);  // Free the old image
     }
     return FALSE;
 }
