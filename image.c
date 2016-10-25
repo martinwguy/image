@@ -10,6 +10,7 @@
 #include <gtk/gtk.h>
 
 static void openFile(GtkWidget *widget, gpointer data);
+static void resizeImage(GtkWidget *widget, gpointer data);
 
 // openFile() needs both "window" to open the dialog and "image" to be able
 // to change the displayed image. We should put them both in a struct and pass
@@ -70,6 +71,10 @@ main(int argc, char **argv)
     g_signal_connect(G_OBJECT(quitMi), "activate",
 		     G_CALLBACK(gtk_main_quit), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), fileMi);
+
+    // When the window is resized, scale the image to fit
+    g_signal_connect(image, "expose-event",
+		     G_CALLBACK(resizeImage), (gpointer) window);
 	
     gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
@@ -97,4 +102,19 @@ openFile(GtkWidget *widget, gpointer data)
     }
     gtk_widget_destroy (dialog);
     gtk_window_resize(GTK_WINDOW(window), 1, 1);
+}
+
+void
+resizeImage(GtkWidget *widget, gpointer data)
+{
+    GdkPixbuf *pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
+    if (pixbuf == NULL) {
+	g_printerr("Filed to get image to resize");
+	return;
+    }
+
+    pixbuf = gdk_pixbuf_scale_simple(pixbuf, widget->allocation.width,
+    					     widget->allocation.height,
+					     GDK_INTERP_BILINEAR);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(widget), pixbuf);
 }
