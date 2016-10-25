@@ -3,21 +3,30 @@
 
 gboolean resize_image(GtkWidget *widget, GdkEvent *event, GtkWidget *window)
 {
-	GdkPixbuf *pixbuf =	gtk_image_get_pixbuf(GTK_IMAGE(widget));
-	if (pixbuf == NULL)
-	{
-		g_printerr("Failed to resize image\n");
-		return 1;
-	}
-	
-	printf("Width: %i\nHeight%i\n", widget->allocation.width, widget->allocation.height);
-	
-	pixbuf = gdk_pixbuf_scale_simple(pixbuf, widget->allocation.width, widget->allocation.height, GDK_INTERP_BILINEAR);
-	
-	gtk_image_set_from_pixbuf(GTK_IMAGE(widget), pixbuf);
-	
-	return FALSE;
+    GdkPixbuf *pixbuf =	gtk_image_get_pixbuf(GTK_IMAGE(widget));
+    if (pixbuf == NULL)
+    {
+	    g_printerr("Failed to resize image\n");
+	    return 1;
+    }
+
+g_print("Width: %i  Height: %i\n", widget->allocation.width,
+				 widget->allocation.height);
+    
+    if (widget->allocation.width != gdk_pixbuf_get_width(pixbuf) ||
+	widget->allocation.height != gdk_pixbuf_get_height(pixbuf)) {
+    
+	gtk_image_set_from_pixbuf(
+	    GTK_IMAGE(widget),
+	    gdk_pixbuf_scale_simple(
+	    pixbuf, widget->allocation.width, widget->allocation.height,
+	    GDK_INTERP_BILINEAR)
+	);
+	gdk_pixbuf_unref(pixbuf);  // Free the old image
+    }
+    return FALSE;
 }
+
 int main(int argc, char **argv)
 {
 	GtkWidget *window = NULL;
