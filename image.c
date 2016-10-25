@@ -44,9 +44,14 @@ main(int argc, char **argv)
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-    // Allow shrinking the window to smaller than the size allocated to
-    // the contained objects. After all, our image will resize itself.
-    gtk_window_set_policy (GTK_WINDOW(window), TRUE, TRUE, TRUE);
+    // Allow the containing window to be shrunk smaller than the image's
+    // existing size (after all, it will resize automatically)
+    {
+	GdkGeometry geometry;
+	geometry.min_width = geometry.min_height = 1;
+	gtk_window_set_geometry_hints(GTK_WINDOW(window), image,
+				      &geometry, GDK_HINT_MIN_SIZE);
+    }
 
     // Quit if they ask the window manager to close the window.
     g_signal_connect(G_OBJECT(window), "destroy",
