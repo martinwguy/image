@@ -10,7 +10,7 @@
 #include <gtk/gtk.h>
 
 static void openFile(GtkWidget *widget, gpointer data);
-static void resizeImage(GtkWidget *widget, gpointer data);
+static gboolean resizeImage(GtkWidget *widget, gpointer data);
 
 // openFile() needs both "window" to open the dialog and "image" to be able
 // to change the displayed image. We should put them both in a struct and pass
@@ -47,7 +47,7 @@ main(int argc, char **argv)
     // Quit if they ask the window manager to close the window.
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
-
+    // or of they press control-Q
     accel_group = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 
@@ -104,17 +104,34 @@ openFile(GtkWidget *widget, gpointer data)
     gtk_window_resize(GTK_WINDOW(window), 1, 1);
 }
 
-void
+static gboolean
 resizeImage(GtkWidget *widget, gpointer data)
 {
     GdkPixbuf *pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (pixbuf == NULL) {
 	g_printerr("Filed to get image to resize");
-	return;
+	return TRUE;
     }
 
-    pixbuf = gdk_pixbuf_scale_simple(pixbuf, widget->allocation.width,
-    					     widget->allocation.height,
-					     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(widget), pixbuf);
+    if (widget->allocation.width != gdk_pixbuf_get_width(pixbuf) ||
+        widget->allocation.height != gdk_pixbuf_get_height(pixbuf)) {
+
+#if DEBUG
+g_print("%dx%d -> %dx%x\n",
+    gdk_pixbuf_get_width(pixbuf),
+    gdk_pixbuf_get_height(pixbuf),
+    widget->allocation.width,
+    widget->allocation.height);
+#endif
+
+	gtk_image_set_from_pixbuf(
+	    GTK_IMAGE(widget),
+	    gdk_pixbuf_scale_simple(pixbuf, widget->allocation.width,
+				            widget->allocation.height,
+					    GDK_INTERP_BILINEAR)
+	);
+        g_object_unref(pixbuf); // Free the old version
+    }
+
+    return FALSE;
 }
