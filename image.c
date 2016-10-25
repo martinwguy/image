@@ -44,6 +44,10 @@ main(int argc, char **argv)
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
+    // Allow shrinking the window to smaller than the size allocated to
+    // the contained objects. After all, our image will resize itself.
+    gtk_window_set_policy (GTK_WINDOW(window), TRUE, TRUE, TRUE);
+
     // Quit if they ask the window manager to close the window.
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
@@ -109,7 +113,7 @@ resizeImage(GtkWidget *widget, gpointer data)
 {
     GdkPixbuf *pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (pixbuf == NULL) {
-	g_printerr("Filed to get image to resize");
+	g_printerr("Failed to get image to resize");
 	return TRUE;
     }
 

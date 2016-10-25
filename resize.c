@@ -51,6 +51,11 @@ int main(int argc, char **argv)
 	
 	/* Creat Widgets */
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	// Allow shrinking the window to smaller than the size allocated to
+	// the contained objects. After all, our image will resize itself.
+	gtk_window_set_policy (GTK_WINDOW(window), TRUE, TRUE, TRUE);
+
 	image = gtk_image_new_from_file(argv[1]);
 	if (image == NULL)
 	{
