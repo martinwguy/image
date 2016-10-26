@@ -63,7 +63,8 @@ main(int argc, char **argv)
 	    g_message(error->message);
 	    return 1; /* exit() */
 	}
-	// on expose/resize, the pixbuf will be overwrtten */
+	/* on expose/resize, the iamge's pixbuf will be overwrtten
+	 * but we still need the original, so use a copy of it */
 	image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
     } else {
 	g_message("Usage: image file");
@@ -71,15 +72,6 @@ main(int argc, char **argv)
     }
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-    // Allow the containing window to be shrunk smaller than the image's
-    // existing size (after all, it will resize automatically)
-    {
-	GdkGeometry geometry;
-	geometry.min_width = geometry.min_height = 2;
-	gtk_window_set_geometry_hints(GTK_WINDOW(window), image,
-				      &geometry, GDK_HINT_MIN_SIZE);
-    }
 
     // Quit if they ask the window manager to close the window.
     g_signal_connect(G_OBJECT(window), "destroy",
@@ -104,7 +96,7 @@ main(int argc, char **argv)
     gtk_menu_shell_append(GTK_MENU_SHELL(fileMenu), sep);
     gtk_menu_shell_append(GTK_MENU_SHELL(fileMenu), quitMi);
     g_signal_connect(G_OBJECT(openMi), "activate",
-		     G_CALLBACK(openFile), (gpointer) image);
+		     G_CALLBACK(openFile), NULL);
     g_signal_connect(G_OBJECT(quitMi), "activate",
 		     G_CALLBACK(gtk_main_quit), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), fileMi);
@@ -151,10 +143,6 @@ openFile(GtkWidget *widget, gpointer data)
 	    GdkPixbuf *oldPixbuf = sourcePixbuf;
 	    sourcePixbuf = newPixbuf;
 	    g_object_unref(oldPixbuf);
-
-	    gtk_widget_set_size_request(image,
-					gdk_pixbuf_get_width(newPixbuf),
-					gdk_pixbuf_get_height(newPixbuf));
 	}
 	g_free(filename);
     }
@@ -195,7 +183,14 @@ g_print("."); // debug
 				    GDK_INTERP_BILINEAR)
 	);
         g_object_unref(imagePixbuf); /* Free the old one */
-	oldPixbuf = sourcePixbuf;
+
+	/* If the image has changed, resize the window to 1:1 zoom */
+	if (sourcePixbuf != oldPixbuf) {
+	    gtk_widget_set_size_request(image,
+					gdk_pixbuf_get_width(sourcePixbuf),
+					gdk_pixbuf_get_height(sourcePixbuf));
+	    oldPixbuf = sourcePixbuf;
+	}
     }
 
     return FALSE;
