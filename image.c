@@ -1,5 +1,5 @@
 /*
- *	GTK test piece to display an image in a window,
+ *	GTK2 test piece to display an image in a window,
  *	resizing it to the size of the window.
  *
  *	Layout: a menu along the top and the image in the rest of the window.
@@ -7,21 +7,39 @@
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
 
+/* The original image is read from a command-line filename argument and by the
+ * File-Open menu and is stored in sourcePixbuf.
+ *
+ * The displayed image is recreated from the sourcePixbuf on an expose event,
+ * when the window size has changed or when the source image changes.
+ *
+ * When an image file is read we try to resize the window so that the image is
+ * displayed with one screen pixel per image pixel, though the window manager
+ * may immediately resize the window to fit the screen.
+ */
+
 #include <gtk/gtk.h>
 
+/* Event callbacks */
 static void openFile(GtkWidget *widget, gpointer data);
-static gboolean resizeImage(GtkWidget *widget, gpointer data);
+static gboolean exposeImage(GtkWidget *widget, gpointer data);
+
+/* Utility functions */
+static void show_error(char *message);
 
 // openFile() needs both "window" to open the dialog and "image" to be able
 // to change the displayed image. We should put them both in a struct and pass
 // a pointer to that as the callback data but I can't be bothered.
-// Instead, make "window" global. After all, there's only ever goona be one.
+// Instead, we make "window" global. After all, there's only one.
 
 static GtkWidget *window;
+static GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
+static GtkWidget *image;		/* As displayed on the screen */
 
 int
 main(int argc, char **argv)
 {
+    /* UI components */
     GtkWidget *vbox;
     GtkWidget *menubar;
     GtkWidget *fileMenu;
@@ -30,17 +48,27 @@ main(int argc, char **argv)
     GtkWidget *quitMi;
     GtkWidget *sep;
 
-    GtkWidget *image;
-
     GtkAccelGroup *accel_group;
-
-    // If filename not given, new_from_file gives a little default no-image icon
-    char *imageFilename = "";
 
     gtk_init(&argc, &argv);
 
-    if (argc > 1) imageFilename = argv[1];
-    image = gtk_image_new_from_file(imageFilename);
+    /* I haven't figured out how to open the app without an initial image yet */
+    if (argc > 1) {
+	GError *error = NULL;
+
+	/* Make pixbuf, then make image from pixbuf because
+	 * gtk_image_new_from_file() doesn't flag errors */
+	sourcePixbuf = gdk_pixbuf_new_from_file(argv[1], &error);
+	if (sourcePixbuf == NULL) {
+	    g_message(error->message);
+	    return 1; /* exit() */
+	}
+	// on expose/resize, the pixbuf will be overwrtten */
+	image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
+    } else {
+	g_message("Usage: image file");
+	return 1; /* exit() */
+    }
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
@@ -48,7 +76,7 @@ main(int argc, char **argv)
     // existing size (after all, it will resize automatically)
     {
 	GdkGeometry geometry;
-	geometry.min_width = geometry.min_height = 1;
+	geometry.min_width = geometry.min_height = 2;
 	gtk_window_set_geometry_hints(GTK_WINDOW(window), image,
 				      &geometry, GDK_HINT_MIN_SIZE);
     }
@@ -83,7 +111,7 @@ main(int argc, char **argv)
 
     // When the window is resized, scale the image to fit
     g_signal_connect(image, "expose-event",
-		     G_CALLBACK(resizeImage), (gpointer) window);
+		     G_CALLBACK(exposeImage), NULL);
 	
     gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 0);
@@ -94,10 +122,11 @@ main(int argc, char **argv)
     return 0;
 }
 
+/* Callback functions */
+
 static void
 openFile(GtkWidget *widget, gpointer data)
 {
-    GtkImage *image = GTK_IMAGE(data);
     GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
 				      GTK_WINDOW(window),
 				      GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -105,42 +134,85 @@ openFile(GtkWidget *widget, gpointer data)
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-	gtk_image_set_from_file(image, filename);
+	char *filename;		/* File name from chooser */
+	GdkPixbuf *newPixbuf;	/* image read from file */
+	GError *error = NULL;
+
+	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	newPixbuf = gdk_pixbuf_new_from_file(filename, &error);
+	if (newPixbuf == NULL) {
+	    show_error(error->message);
+	} else {
+	    /* Set the displayed image to the same size as new image so
+	     * that it starts out at 1:1 zoom. The window manager may
+	     * resize this to fit the screen.
+	     * On-screen image will change at next expose event.
+	     */
+	    GdkPixbuf *oldPixbuf = sourcePixbuf;
+	    sourcePixbuf = newPixbuf;
+	    g_object_unref(oldPixbuf);
+
+	    gtk_widget_set_size_request(image,
+					gdk_pixbuf_get_width(newPixbuf),
+					gdk_pixbuf_get_height(newPixbuf));
+	}
 	g_free(filename);
     }
     gtk_widget_destroy (dialog);
-    gtk_window_resize(GTK_WINDOW(window), 1, 1);
 }
 
+/* If the window has been resized, resize the image to it.
+ * Similarly if the image itself has changed.
+ * The image-changing code ensures that the pixbuf containing a new image
+ * will be loaded at a different address from the old one.
+ */
+
 static gboolean
-resizeImage(GtkWidget *widget, gpointer data)
+exposeImage(GtkWidget *widget, gpointer data)
 {
-    GdkPixbuf *pixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
-    if (pixbuf == NULL) {
-	g_printerr("Failed to get image to resize");
+    /* The last source pixbuf we saw. We remember it so that, if the image
+     * changes, we repaint the on-screen image too. */
+    static GdkPixbuf *oldPixbuf = NULL;
+    GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
+g_print("."); // debug
+
+    imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
+    if (imagePixbuf == NULL) {
+	g_message("Can't get on-screen pixbuf", widget);
 	return TRUE;
     }
-
-    if (widget->allocation.width != gdk_pixbuf_get_width(pixbuf) ||
-        widget->allocation.height != gdk_pixbuf_get_height(pixbuf)) {
-
-#if DEBUG
-g_print("%dx%d -> %dx%x\n",
-    gdk_pixbuf_get_width(pixbuf),
-    gdk_pixbuf_get_height(pixbuf),
-    widget->allocation.width,
-    widget->allocation.height);
-#endif
+    /* Recreate displayed image if source file has changed
+     * or image size has changed.  */
+    if (sourcePixbuf != oldPixbuf ||
+	(widget->allocation.width != gdk_pixbuf_get_width(imagePixbuf) ||
+         widget->allocation.height != gdk_pixbuf_get_height(imagePixbuf))) {
 
 	gtk_image_set_from_pixbuf(
 	    GTK_IMAGE(widget),
-	    gdk_pixbuf_scale_simple(pixbuf, widget->allocation.width,
-				            widget->allocation.height,
-					    GDK_INTERP_BILINEAR)
+	    gdk_pixbuf_scale_simple(sourcePixbuf,
+				    widget->allocation.width,
+				    widget->allocation.height,
+				    GDK_INTERP_BILINEAR)
 	);
-        g_object_unref(pixbuf); // Free the old version
+        g_object_unref(imagePixbuf); /* Free the old one */
+	oldPixbuf = sourcePixbuf;
     }
 
     return FALSE;
+}
+
+/* Utility functions */
+
+static void
+show_error(char *message)
+{
+  GtkWidget *dialog;
+  dialog = gtk_message_dialog_new(GTK_WINDOW(window),
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_OK,
+            "%s", message);
+  gtk_window_set_title(GTK_WINDOW(dialog), "Error");
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
 }
