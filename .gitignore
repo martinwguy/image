@@ -1,2 +1,4 @@
-image
+.nfs*
+image1-efl
+image2-efl
 image.jpg
