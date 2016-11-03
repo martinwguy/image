@@ -1,4 +1,6 @@
 .nfs*
 image1-efl
 image2-efl
+image1-gtk2
+image2-gtk2
 image.jpg
