@@ -8,6 +8,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
+int
 main(argc, argv)
 int argc;
 char **argv;

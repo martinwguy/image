@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+int
 main(argc, argv)
 int argc;
 char **argv;

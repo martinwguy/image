@@ -60,7 +60,7 @@ main(int argc, char **argv)
 	 * gtk_image_new_from_file() doesn't flag errors */
 	sourcePixbuf = gdk_pixbuf_new_from_file(argv[1], &error);
 	if (sourcePixbuf == NULL) {
-	    g_message(error->message);
+	    g_message("%s", error->message);
 	    return 1; /* exit() */
 	}
 	/* on expose/resize, the iamge's pixbuf will be overwrtten
@@ -166,7 +166,7 @@ g_print("."); // debug
 
     imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (imagePixbuf == NULL) {
-	g_message("Can't get on-screen pixbuf", widget);
+	g_message("Can't get on-screen pixbuf");
 	return TRUE;
     }
     /* Recreate displayed image if source file has changed
