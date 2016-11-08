@@ -5,8 +5,8 @@
  * The window should open to exactly fit the image at one-pixel-per-pixel size.
  * The user can then resize the window in which case the image scales to fit
  * the window without keeping its aspect ratio.
- * If they hit Control-Q or poke the [X] icon in the border, the application
- * should quit.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
  *
  * Bugs:
  *    - When the window manager resizes the window, es. when it bumps against
@@ -38,6 +38,7 @@ char **argv;
     AG_Window	*window;
     AG_Surface	*surface;
     AG_Pixmap	*pixmap;
+    char *imageFilename = (argc > 1) ? argv[1] : "image.jpg";
 
     if (AG_InitCore(NULL, 0) == -1 ||
 	AG_InitGraphics(0) == -1) {
@@ -46,9 +47,17 @@ char **argv;
 	    exit(1);
     }
 
-
-    surface = AG_SurfaceFromFile(argc > 1 ? argv[1] : "image.jpg");
+    surface = AG_SurfaceFromFile(imageFilename);
+    if (!surface) {
+	fprintf(stderr, "Cannot make surface from file %s: %s.\n",
+		imageFilename, AG_GetError());
+	exit(1);
+    }
     window = AG_WindowNew(0);
+    if (!window) {
+	fprintf(stderr, "Cannot create window: %s.\n", AG_GetError());
+	exit(1);
+    }
 
     AG_BindGlobalKey(AG_KEY_Q, AG_KEYMOD_CTRL, AG_QuitGUI);
     AG_SetEvent(window, "window-close", QuitGUI_handler, "");
@@ -58,6 +67,11 @@ char **argv;
      * direction but is truncated in the verical (!) */
     pixmap = AG_PixmapFromSurface(
 	window, AG_PIXMAP_RESCALE|AG_PIXMAP_EXPAND, surface);
+    if (!pixmap) {
+	fprintf(stderr, "Cannot make pixmap from surface: %s.\n",
+		AG_GetError());
+	exit(1);
+    }
 
     AG_WindowShow(window);
 
