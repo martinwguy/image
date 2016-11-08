@@ -14,7 +14,6 @@ char **argv;
 {
     SDL_Surface *screen;
     SDL_Surface *sourceImage, *image;
-    SDL_Rect rect;
     SDL_Event	event;
 
     if (argc != 2) {
@@ -23,54 +22,55 @@ char **argv;
     }
 
     SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO|SDL_DOUBLEBUF);
+    atexit(SDL_Quit);
 
     sourceImage = IMG_Load(argv[1]);
     if (!sourceImage) {
 	fputs("Couldn't read ", stderr);
 	perror(argv[1]);
-	goto fail;
+	exit(1);
     }
 
-    screen = SDL_SetVideoMode(sourceImage->w, sourceImage->h, 0, SDL_HWPALETTE);
+    screen = SDL_SetVideoMode(sourceImage->w, sourceImage->h, 0, SDL_HWPALETTE|SDL_RESIZABLE);
     if (screen == NULL) {
-	printf("Couldn't set screen mode: %s\n", SDL_GetError());
+	printf("Couldn't create window: %s\n", SDL_GetError());
 	exit(1);
     }
 
     SDL_WM_SetCaption(argv[0], NULL);
 
     /* Convert image to screen's native format */
-    image = SDL_DisplayFormat(sourceImage);
-    if (!image) {
-	fputs("Couldn't convert image to display format", stderr);
-	goto fail;
+    {
+        SDL_Surface *temp;
+        temp = SDL_DisplayFormat(sourceImage);
+        if (!temp) {
+	    fputs("Couldn't convert image to display format", stderr);
+	    exit(1);
+	}
+	SDL_FreeSurface(sourceImage);
+	sourceImage = temp;
     }
 
-    rect.x = rect.y = 0;
-    rect.w = image->w;
-    rect.h = image->h;
-    SDL_BlitSurface(image, NULL, screen, &rect);
+    SDL_BlitSurface(sourceImage, NULL, screen, NULL);
     SDL_Flip(screen);
 
-    while (1) {
-	while (SDL_PollEvent(&event)) switch (event.type) {
-	/* Closing the Window or pressing Escape will exit the program */
-	case SDL_QUIT:
-	    goto quit;
-	case SDL_KEYDOWN:
-	    switch (event.key.keysym.sym) {
-	    case SDLK_ESCAPE:
-		goto quit;
-	    }
-	    break;
+    while (SDL_WaitEvent(&event)) switch (event.type) {
+    /* Closing the Window or pressing Escape will exit the program */
+    case SDL_QUIT:
+	exit(0);
+    case SDL_KEYDOWN:
+	switch (event.key.keysym.sym) {
+	case SDLK_ESCAPE:
+	    exit(0);
 	}
-	SDL_Delay(20);
-    }
+	break;
+    case SDL_VIDEORESIZE:
+	// imageRect.w = event.resize.w;
+	// imageRect.h = event.resize.h;
+	// Need to scale sourceImage into image here and Blit that.
 
-quit:
-    SDL_Quit();
-    exit(0);
-fail:
-    SDL_Quit();
-    exit(1);
+	SDL_BlitSurface(sourceImage, NULL, screen, NULL);
+	SDL_Flip(screen);
+	break;
+    }
 }
