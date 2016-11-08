@@ -4,6 +4,7 @@
  * Inspired by
  * www.parallelrealities.co.uk/2011/09/basic-game-tutorial-1-opening-window.html
  * http://lazyfoo.net/tutorials/SDL/35_window_events
+ * https://web.archive.org/web/20140306003549/http://www.programmersranch.com/2013/11/sdl2-displaying-image-in-window.html
  */
 
 #include <SDL2/SDL.h>

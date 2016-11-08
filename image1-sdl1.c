@@ -68,6 +68,7 @@ char **argv;
 	// imageRect.w = event.resize.w;
 	// imageRect.h = event.resize.h;
 	// Need to scale sourceImage into image here and Blit that.
+	// see https://wiki.allegro.cc/index.php?title=Bilinear_resize
 
 	SDL_BlitSurface(sourceImage, NULL, screen, NULL);
 	SDL_Flip(screen);
