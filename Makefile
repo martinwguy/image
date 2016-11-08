@@ -1,6 +1,15 @@
-ALL=image1-efl image2-efl image1-gtk2 image2-gtk2 image1-sdl1 image1-sdl2
+ALL=	image1-agar \
+	image1-efl image2-efl \
+	image1-gtk2 image2-gtk2 \
+	image1-sdl1 image1-sdl2
 
 all: $(ALL)
+
+AGAR_CFLAGS=-I/usr/local/include/agar -I/usr/include/freetype2 -I/usr/include/freetype2 -I/usr/include/libpng12
+AGAR_LIBS=-L/usr/local/lib -lag_gui -lag_core  -L/usr/lib/i386-linux-gnu -lfreetype -lz -lpng12 -lfontconfig -lfreetype   -L/usr/local/lib -lGL -lX11  -lXinerama -lm -L/usr/lib -ljpeg -lpng12 -lpthread -ldl
+
+image1-agar: image1-agar.c
+	cc $(AGAR_CFLAGS) -o $@ $< $(AGAR_LIBS)
 
 image1-efl: image1-efl.c
 	cc $< -o $@ `pkg-config --cflags --libs elementary`
