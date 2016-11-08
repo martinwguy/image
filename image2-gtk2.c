@@ -162,7 +162,6 @@ exposeImage(GtkWidget *widget, gpointer data)
      * changes, we repaint the on-screen image too. */
     static GdkPixbuf *oldPixbuf = NULL;
     GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
-g_print("."); // debug
 
     imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (imagePixbuf == NULL) {
