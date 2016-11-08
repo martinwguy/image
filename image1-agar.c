@@ -53,6 +53,7 @@ char **argv;
 		imageFilename, AG_GetError());
 	exit(1);
     }
+
     window = AG_WindowNew(0);
     if (!window) {
 	fprintf(stderr, "Cannot create window: %s.\n", AG_GetError());
@@ -62,9 +63,9 @@ char **argv;
     AG_BindGlobalKey(AG_KEY_Q, AG_KEYMOD_CTRL, AG_QuitGUI);
     AG_SetEvent(window, "window-close", QuitGUI_handler, "");
 
-    /* Without EXPAND, the image is never made bigger than original size
-     * but can b made smaller, in which case it scales in the horizontal
-     * direction but is truncated in the verical (!) */
+    /* Without EXPAND, the image is never made bigger than its original size.
+     * The window can be made smaller, in which case the image is scaled in
+     * the horizontal direction but truncated in the vertical. */
     pixmap = AG_PixmapFromSurface(
 	window, AG_PIXMAP_RESCALE|AG_PIXMAP_EXPAND, surface);
     if (!pixmap) {
