@@ -1,4 +1,6 @@
 .nfs*
+image1-agar
+image2-agar
 image1-efl
 image2-efl
 image1-gtk2
