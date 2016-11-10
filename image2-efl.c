@@ -1,6 +1,20 @@
 /*
- * EFL/Elementary graphics toolkit test piece to display an image and
- * resize it to fit its container area.
+ * image2-efl: GUI toolkit test piece to display an image file.
+ *
+ * An optional image file is given as a command-line argument and, if given,
+ * The window should open to exactly fit the image at one-pixel-per-pixel size.
+ * The user can then resize the window in which case the image scales to fit
+ * the window without keeping its aspect ratio.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
+ * A single "File" menu has two voices: "Open" to change file and,
+ * if successful, resize the the window to fit the image at 1:1 zoom,
+ * and "Quit".
+ *
+ * Bugs:
+ *    - It doesn't allow you to start it without an initial image.
+ *    - There are two buttons instead of the usual menu.
+ *    - File-Open doesn't do anything.
  *
  *     Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -15,6 +29,7 @@ elm_main(int argc, char **argv)
    Evas_Object *vbox, *hbox;	/* to add row of buttons along the top edge */
    Evas_Object *openButton, *quitButton;
    Evas_Object *image;
+   char *filename = (argc > 1) ? argv[1] : "image.jpg";
  
    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
  
@@ -37,7 +52,7 @@ elm_main(int argc, char **argv)
     image = elm_image_add(vbox);
      elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
      elm_image_aspect_fixed_set(image, EINA_FALSE);
-     elm_image_file_set(image, "image.jpg", NULL);
+     elm_image_file_set(image, filename, NULL);
      {
       int w, h;
       elm_image_object_size_get(image, &w, &h);
@@ -56,6 +71,7 @@ elm_main(int argc, char **argv)
    elm_run();
    return 0;
 }
+
 ELM_MAIN()
 
 /* One day... */
