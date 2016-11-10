@@ -79,6 +79,8 @@ char **argv;
 	fprintf(stderr, "Cannot create window: %s.\n", AG_GetError());
 	exit(1);
     }
+    /* Don't gobble up screen area with yet another border */
+    AG_WindowSetPadding(window, 0, 0, 0, 0); /* Instead of 1 */
 
     /* Quit if they close the main window or press Ctrl-Q. */
     AG_BindGlobalKey(AG_KEY_Q, AG_KEYMOD_CTRL, AG_QuitGUI);
@@ -86,6 +88,8 @@ char **argv;
 
     /* Populate the window with a menu bar at the top and the image below */
     vbox = AG_BoxNewVert(window, AG_BOX_EXPAND);
+    AG_BoxSetPadding(vbox, 0);
+    AG_BoxSetSpacing(vbox, 0);
     menu = AG_MenuNew(vbox, 0);
     item = AG_MenuNode(menu->root, "File", NULL);
 	AG_MenuAction(item, "Open", NULL, do_OpenFile, NULL);

@@ -59,6 +59,8 @@ char **argv;
 	fprintf(stderr, "Cannot create window: %s.\n", AG_GetError());
 	exit(1);
     }
+    /* Don't gobble up screen area with extra borders */
+    AG_WindowSetPadding(window, 0, 0, 0, 0); /* Instead of 1 */
 
     AG_BindGlobalKey(AG_KEY_Q, AG_KEYMOD_CTRL, AG_QuitGUI);
     AG_SetEvent(window, "window-close", QuitGUI_handler, "");
