@@ -1,10 +1,18 @@
 /*
- * EFL/Elementary graphics toolkit test piece to display an image and
- * resize it to fit its container area.
+ * image1-elf.c: GUI toolkit test piece to display an image file.
+ *
+ * The image file is given as a command-line argument (default: image.jpg).
+ * The window should open to exactly fit the image at one-pixel-per-pixel size.
+ * The user can then resize the window in which case the image scales to fit
+ * the window without keeping its aspect ratio.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
  *
  *     Martin Guy <martinwguy@gmail.com>, October 2016.
  */
 #include <Elementary.h>
+
+static void keyDown(void *data, Evas *e, Evas_Object *obj, void *event_info);
  
 EAPI_MAIN int
 elm_main(int argc, char **argv)
@@ -17,6 +25,7 @@ elm_main(int argc, char **argv)
  
    win = elm_win_util_standard_add("Image", "Image resizer");
    elm_win_autodel_set(win, EINA_TRUE);
+   evas_object_event_callback_add(win, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
 
    image = elm_image_add(win);
    elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
@@ -37,3 +46,17 @@ elm_main(int argc, char **argv)
 }
 
 ELM_MAIN()
+
+/* Quit on Control-Q */
+static void
+keyDown(void *data, Evas *evas, Evas_Object *obj, void *einfo)
+{
+    const Evas_Modifier *mods;
+    Evas_Event_Key_Down *ev = einfo;
+
+    mods = evas_key_modifier_get(evas);
+    if (evas_key_modifier_is_set(mods, "Control") &&
+	strcmp(ev->key, "q") == 0) {
+	exit(0);	/* There has to be a more graceful way! */
+    }
+}
