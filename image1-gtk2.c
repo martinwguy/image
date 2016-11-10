@@ -1,8 +1,18 @@
 /*
- *	GTK2 test piece to display an image in a window,
- *	resizing it to fit when the window is shrunk or grown.
+ * image1-gtk2.c: GUI toolkit test piece to display an image file.
  *
- * The original image is read from a command-line filename argument.
+ * The image file is given as a command-line argument (default: image.jpg).
+ * The window should open to exactly fit the image at one-pixel-per-pixel size.
+ * The user can then resize the window in which case the image scales to fit
+ * the window without keeping its aspect ratio.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
+ *
+ * Bugs:
+ *    - If you resize the window to minimum size (1x1), GTK goes into a
+ *	100% CPU loop for about a minute, during which time it does not
+ *	refresh the display, then recovers as mysteriously as it died.
+ *    - It doesn't quit on Control-Q
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -12,25 +22,22 @@
 /* Event callbacks */
 static gboolean exposeImage(GtkWidget *widget, gpointer data);
 
-static GtkWidget *window;
 static GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
-static GtkWidget *image;		/* As displayed on the screen */
 
 int
 main(int argc, char **argv)
 {
-    gtk_init(&argc, &argv);
+    GtkWidget *window;
+    GtkWidget *image;		/* As displayed on the screen */
+    char *filename =  (argc > 1) ? argv[1] : "image.jpg";
 
-    if (argc != 2) {
-	g_message("Usage: image file");
-	return 1; /* exit() */
-    }
+    gtk_init(&argc, &argv);
 
     /* Make pixbuf, then make image from pixbuf because
      * gtk_image_new_from_file() doesn't flag errors */
     {
 	GError *error = NULL;
-	sourcePixbuf = gdk_pixbuf_new_from_file(argv[1], &error);
+	sourcePixbuf = gdk_pixbuf_new_from_file(filename, &error);
 	if (sourcePixbuf == NULL) {
 	    g_message("%s", error->message);
 	    return 1; /* exit() */
@@ -68,12 +75,7 @@ main(int argc, char **argv)
 
 /* Callback functions */
 
-/* If the window has been resized, resize the image to it.
- * Similarly if the image itself has changed.
- * The image-changing code ensures that the pixbuf containing a new image
- * will be loaded at a different address from the old one.
- */
-
+/* If the window has been resized, resize the image to it. */
 static gboolean
 exposeImage(GtkWidget *widget, gpointer data)
 {
@@ -84,8 +86,7 @@ exposeImage(GtkWidget *widget, gpointer data)
 	g_message("Can't get on-screen pixbuf");
 	return TRUE;
     }
-    /* Recreate displayed image if source file has changed
-     * or image size has changed.  */
+    /* Recreate thedisplayed image if the image size has changed. */
     if (widget->allocation.width != gdk_pixbuf_get_width(imagePixbuf) ||
         widget->allocation.height != gdk_pixbuf_get_height(imagePixbuf)) {
 
