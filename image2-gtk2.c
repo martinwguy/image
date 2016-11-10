@@ -1,8 +1,22 @@
 /*
- *	GTK2 test piece to display an image in a window,
- *	resizing it to the size of the window.
+ * image2-gtk2.c: GUI toolkit test piece to display an image file.
  *
- *	Layout: a menu along the top and the image in the rest of the window.
+ * An optional image file is given as a command-line argument and, if given,
+ * The window should open to exactly fit the image at one-pixel-per-pixel size.
+ * The user can then resize the window in which case the image scales to fit
+ * the window without keeping its aspect ratio.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
+ * A single "File" menu has two voices: "Open" to change file and,
+ * if successful, resize the the window to fit the image at 1:1 zoom,
+ * and "Quit".
+ *
+ * Bugs:
+ *    - You can grow the image but can't resize the image smaller than 1:1.
+ *    - When you load a new image, the window is not resized to display
+ *	the image at 1:1 zoom.
+ *    - You can't start it without a filename.
+ *    - It doesn't quit on Control-Q
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
