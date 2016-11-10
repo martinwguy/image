@@ -20,6 +20,8 @@
  */
 #include <Elementary.h>
 
+static void keyDown(void *data, Evas *e, Evas_Object *obj, void *event_info);
+
 static void fileOpen(void *data, Evas_Object *obj, void *event_info);
 
 EAPI_MAIN int
@@ -35,6 +37,7 @@ elm_main(int argc, char **argv)
  
    win = elm_win_util_standard_add("Image", "Image resizer");
    elm_win_autodel_set(win, EINA_TRUE);
+   evas_object_event_callback_add(win, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
 
    vbox = elm_box_add(win);
 
@@ -65,7 +68,7 @@ elm_main(int argc, char **argv)
     * natural size and then allow the user to resize the window and
     * as a consequence resize the image. */
    elm_win_resize_object_add(win, image);
-   evas_object_size_hint_weight_set(image, 1.0, 1.0);
+   //evas_object_size_hint_weight_set(image, 1.0, 1.0);
 
    evas_object_show(win);
    elm_run();
@@ -73,6 +76,20 @@ elm_main(int argc, char **argv)
 }
 
 ELM_MAIN()
+
+/* Quit on Control-Q */
+static void
+keyDown(void *data, Evas *evas, Evas_Object *obj, void *einfo)
+{
+    const Evas_Modifier *mods;
+    Evas_Event_Key_Down *ev = einfo;
+
+    mods = evas_key_modifier_get(evas);
+    if (evas_key_modifier_is_set(mods, "Control") &&
+	strcmp(ev->key, "q") == 0) {
+	exit(0);	/* There has to be a more graceful way! */
+    }
+}
 
 /* One day... */
 static void
