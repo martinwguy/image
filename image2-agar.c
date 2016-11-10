@@ -11,6 +11,8 @@
  * if successful, resize the the window to fit the image at 1:1 zoom,
  * and "Quit".
  *
+ *	 Martin Guy <martinwguy@gmail.com>, November 2016.
+ *
  * Bugs:
  *    - When the window manager resizes the window, es. when it bumps against
  *	a screen edge or when the WM's "maximize" button is poked, the image
@@ -22,10 +24,20 @@
  *	three times out of four the image is displayed skewed and sometimes
  *	in black and white.
  *	https://bugs.csoft.net/show_bug.cgi?id=227
- *    - When you load a new image from the File-Open menu, the window does not
- *	resize to display the image at 1:1 resolution.
  *    - The minimum window size is 32x32 instead of the right size to give a
  *	1x1 image area.
+ *    - When you load a new image from the File-Open menu, the window does not
+ *	resize to display the image at 1:1 resolution.
+ *    - When you run this with no filename argument, it dumps core deep in AGAR
+ *	trying to load a pixel from a null pointer. Funny, it didn't used to.
+ *	agar-1.5.0/include/agar/gui/surface.h:268:
+ *	AG_GetPixel(const AG_Surface *s, const Uint8 *pSrc)
+ *	{
+ *		switch (s->format->BytesPerPixel) {
+ *		case 4:
+ *			return (*(Uint32 *)pSrc);        <-- Here
+ *	This happens when AG_BoxSetPadding(vbox, n) is less than 2.
+ *	Define WORKAROUND_BUG to get around this.
  * Features:
  *    - The scaling is done to the nearest pixel, giving a shimmering effect
  *	to the image during window resizing.
@@ -37,17 +49,25 @@
  *    - AG_{Surface,Pixmap}FromFile() can only open JPG, PNG and BMP files.
  *    - Even with the filetype extension selector, they can still select files
  *	with different extensions.
+ * Defects:
+ *    - "pixmap" shouldn't be global. How to get it to openFile otherwise?
  */
 
 #include <agar/core.h>
 #include <agar/gui.h>
 
+#define WORKAROUND_BUG
+
 /* Event-handling routines */
 static void do_OpenFile(AG_Event *event);
 static void do_QuitGUI(AG_Event *event);
 
-static    AG_Surface	*surface;
+/* Should be private to main(), like "surface", but it is needed in openFile
+ * but passing it down a chain of callbacks and event handlers is too ugly. */
 static    AG_Pixmap	*pixmap;
+
+/* And this needs to be global for WORKAROUND_BUG */
+static    AG_Box	*vbox;
 
 int
 main(argc, argv)
@@ -59,7 +79,7 @@ char **argv;
     AG_Toolbar	*toolbar;
     AG_Menu	*menu;
     AG_MenuItem	*item;
-    AG_Box	*vbox;
+    AG_Surface	*surface;
     
     char	*imageFilename;
 
@@ -87,15 +107,24 @@ char **argv;
     AG_SetEvent(window, "window-close", do_QuitGUI, "");
 
     /* Populate the window with a menu bar at the top and the image below */
+
     vbox = AG_BoxNewVert(window, AG_BOX_EXPAND);
+    /* Get rid of nasty borders on vbox */
+
+#ifdef WORKAROUND_BUG
+    if (imageFilename)
+#endif
     AG_BoxSetPadding(vbox, 0);
     AG_BoxSetSpacing(vbox, 0);
+
+    /* The menu */
     menu = AG_MenuNew(vbox, 0);
     item = AG_MenuNode(menu->root, "File", NULL);
 	AG_MenuAction(item, "Open", NULL, do_OpenFile, NULL);
 	AG_MenuAction(item, "Quit", NULL, do_QuitGUI, NULL);
 
-    if (!imageFilename) {
+    /* The image */
+    if (imageFilename == NULL) {
 	surface = AG_SurfaceEmpty();
     } else {
 	surface = AG_SurfaceFromFile(imageFilename);
@@ -137,6 +166,10 @@ static void openFile(AG_Event *event)
 	/* Freeing the old surface leads to a "double free" error. */
     }
 
+#ifdef WORKAROUND_BUG
+    AG_BoxSetPadding(vbox, 0); /* Deferred */
+#endif
+
     /* How do we get the window to change size so the image is displayed 1:1? */
 
     /* Without this, the screen image doesn't change until you resize the
@@ -157,17 +190,21 @@ do_OpenFile(AG_Event *event)
 					AG_FILEDLG_CLOSEWIN |
         // Showing the File Type selector is pointless with only one file type.
 					AG_FILEDLG_NOTYPESELECT |
-        // Got to have this otherwise they can still enlarge the popup but
-	// the contents just sits there like a prune.
+        // Got to have this otherwise they can still enlarge the popup window
+	// but the contents just sits there like a prune.
 					AG_FILEDLG_EXPAND |
 	// Don't show "." files by default (there is still a checkbox to
-	// showidden files if they want that.)
+	// show hidden files if they want them.)
 					AG_FILEDLG_MASK_HIDDEN))) {
 	fprintf(stderr, "Cannot make popup window: %s.\n", AG_GetError());
 	return;
     }
+    /* You can't get rid of the "Mask Files by extension" chackbox, and without
+     * this line, checking it just makes all the files disappear. */
     AG_FileDlgAddType(dialog, "Images",
 	"*.jpg,*.JPG,*.jpeg,*.JPEG,*.png,*.PNG,*.bmp,*.BMP", /* Yuk! */
+	/* ".jpg,.JPG,.jpeg,.JPEG,.png,.PNG,.bmp,.BMP" also works but
+	 * "jpg,JPG,jpeg,JPEG,png,PNG,bmp,BMP" doesn't. I wonder why (not). */
 	NULL, "");
 
     AG_AddEvent(dialog, "file-chosen", openFile, "");
