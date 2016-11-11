@@ -8,6 +8,8 @@
  * If they hit Control-Q or poke the [X] icon in the window's titlebar,
  * the application should quit.
  *
+ * Bugs: None.
+ *
  *     Martin Guy <martinwguy@gmail.com>, October 2016.
  */
 #include <Elementary.h>
