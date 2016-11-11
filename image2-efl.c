@@ -12,9 +12,10 @@
  * and "Quit".
  *
  * Bugs:
- * - It doesn't allow you to start it without an initial image.
  * - Instead of a "File" menu there are just two buttons "Open" and "Quit".
- * - the Open button doesn't do anything.
+ * - If you Open a duff file, you get a black window instead of an error.
+ * - When you open a new file, the window is not resized to display it 1:1.
+ * - With window >10000 pixels wide, only the left 10000 columns are displayed.
  *
  *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  */
@@ -23,20 +24,21 @@
 
 /* Event handlers */
 static void keyDown(void *data, Evas *e, Evas_Object *obj, void *event_info);
-static void openFile(void *data, Evas_Object *obj, void *event_info);
+static void fileChosen(void *data, Evas_Object *obj, void *event_info);
 static void quitGUI(void *data, Evas_Object *obj, void *event_info);
+
+static    Evas_Object *window;
+static    Evas_Object *vbox;
+static    Evas_Object *image;
 
 EAPI_MAIN int
 elm_main(int argc, char **argv)
 {
-    Evas_Object *window;
-    Evas_Object *vbox;
     Evas_Object *hbox;	/* The "menu toolbar" */
     Evas_Object *openButton;
     Evas_Object *quitButton;
     Evas_Object *menu;
-    Evas_Object *image;
-    char *filename = (argc > 1) ? argv[1] : "image.jpg";
+    char *filename = (argc > 1) ? argv[1] : NULL;
  
     elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
  
@@ -57,22 +59,24 @@ elm_main(int argc, char **argv)
     elm_box_pack_end(vbox, hbox);
     evas_object_show(hbox);
 
-    openButton = elm_button_add(hbox);
+    openButton = elm_fileselector_button_add(hbox);
+    elm_object_text_set(openButton, "Open");
+    elm_fileselector_button_inwin_mode_set(openButton, EINA_FALSE);
+    evas_object_smart_callback_add(openButton, "file,chosen", fileChosen, NULL);
+    elm_box_pack_end(hbox, openButton);
+    evas_object_show(openButton);
+
     quitButton = elm_button_add(hbox);
-    elm_object_part_text_set(openButton, NULL, "Open");
     elm_object_part_text_set(quitButton, NULL, "Quit");
-    evas_object_smart_callback_add(openButton, "clicked", openFile, NULL);
     evas_object_smart_callback_add(quitButton, "pressed", quitGUI, NULL);
     evas_object_smart_callback_add(quitButton, "clicked", quitGUI, NULL);
-    elm_box_pack_end(hbox, openButton);
     elm_box_pack_end(hbox, quitButton);
-    evas_object_show(openButton);
     evas_object_show(quitButton);
 
     image = elm_image_add(vbox);
     elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
     elm_image_aspect_fixed_set(image, EINA_FALSE);
-    elm_image_file_set(image, filename, NULL);
+    if (filename) elm_image_file_set(image, filename, NULL);
     {
         int w, h;
         elm_image_object_size_get(image, &w, &h);
@@ -81,7 +85,6 @@ elm_main(int argc, char **argv)
     elm_box_pack_end(vbox, image);
     evas_object_show(image);
 
-    evas_object_size_hint_weight_set(hbox, 0.0, 0.0);
     evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
     evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
@@ -90,10 +93,9 @@ elm_main(int argc, char **argv)
     elm_win_resize_object_add(window, vbox);
     evas_object_show(window);
 
-    // Then allow the user or WM to resize the contents
+    // Then allow the user or WM to resize it
     evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_min_set(image, 1, 1);
-
 
     elm_run();
 
@@ -102,25 +104,52 @@ elm_main(int argc, char **argv)
 
 ELM_MAIN()
 
+/* A file  has been chosen from file selector. Open it. */
+static void unlimitImageSize(void *data, Evas_Object *obj, void *event_info);
+
+static void
+fileChosen(void *data, Evas_Object *obj, void *event_info)
+{
+    const char *filename = event_info;
+
+    if (filename == NULL) return;  /* They cancelled instead of selecting */
+
+    elm_image_file_set(image, filename, NULL);
+    /* Make the window resize to display the image at 1:1 zoom
+     * and when the window has resized, remove the size limits. */
+    evas_object_event_callback_add(image, EVAS_CALLBACK_RESIZE,
+	(Evas_Object_Event_Cb) unlimitImageSize, image);
+    {
+	int w, h;
+	elm_image_object_size_get(image, &w, &h);
+	evas_object_size_hint_min_set(image, w, h);
+	evas_object_size_hint_max_set(image, w, h);
+    }
+}
+
+static void
+unlimitImageSize(void *data, Evas_Object *obj, void *event_info)
+{
+    Evas_Object *image = data;
+
+    evas_object_size_hint_min_set(image, 1, 1);
+    evas_object_size_hint_max_set(image, -1, -1);
+    evas_object_event_callback_del(image, EVAS_CALLBACK_RESIZE,
+	(Evas_Object_Event_Cb) unlimitImageSize);
+}
+
 /* Quit on Control-Q */
 static void
-keyDown(void *data, Evas *evas, Evas_Object *obj, void *einfo)
+keyDown(void *data, Evas *evas, Evas_Object *obj, void *event_info)
 {
     const Evas_Modifier *mods;
-    Evas_Event_Key_Down *ev = einfo;
+    Evas_Event_Key_Down *ev = event_info;
 
     mods = evas_key_modifier_get(evas);
     if (evas_key_modifier_is_set(mods, "Control") &&
 	strcmp(ev->key, "q") == 0) {
-	exit(0);	/* There has to be a more graceful way! */
+	quitGUI(data, obj, event_info);
     }
-}
-
-/* One day... */
-static void
-openFile(void *data, Evas_Object *obj, void *event_info)
-{
-printf("Open\n");
 }
 
 static void
