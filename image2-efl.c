@@ -61,8 +61,9 @@ elm_main(int argc, char **argv)
     quitButton = elm_button_add(hbox);
     elm_object_part_text_set(openButton, NULL, "Open");
     elm_object_part_text_set(quitButton, NULL, "Quit");
-    evas_event_callback_add(openButton, EVAS_CALLBACK_MOUSE_DOWN, openFile, NULL);
-    evas_event_callback_add(quitButton, EVAS_CALLBACK_MOUSE_DOWN, quitGUI, NULL);
+    evas_object_smart_callback_add(openButton, "clicked", openFile, NULL);
+    evas_object_smart_callback_add(quitButton, "pressed", quitGUI, NULL);
+    evas_object_smart_callback_add(quitButton, "clicked", quitGUI, NULL);
     elm_box_pack_end(hbox, openButton);
     elm_box_pack_end(hbox, quitButton);
     evas_object_show(openButton);
