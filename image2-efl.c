@@ -13,68 +13,81 @@
  *
  * Bugs:
  *    - It doesn't allow you to start it without an initial image.
- *    - There are two buttons instead of the usual menu.
+ *    - You can't resize the window.
  *    - File-Open doesn't do anything.
  *
  *     Martin Guy <martinwguy@gmail.com>, October 2016.
  */
+
 #include <Elementary.h>
 
+/* Event handlers */
 static void keyDown(void *data, Evas *e, Evas_Object *obj, void *event_info);
-
 static void fileOpen(void *data, Evas_Object *obj, void *event_info);
+static void quitGUI(void *data, Evas_Object *obj, void *event_info);
 
 EAPI_MAIN int
 elm_main(int argc, char **argv)
 {
-   Evas_Object *win;
-   Evas_Object *vbox, *hbox;	/* to add row of buttons along the top edge */
-   Evas_Object *openButton, *quitButton;
-   Evas_Object *image;
-   char *filename = (argc > 1) ? argv[1] : "image.jpg";
+    Evas_Object *window;
+    Evas_Object *vbox;
+    Evas_Object *toolbar;
+    Evas_Object *openButton, *quitButton;
+    Evas_Object *image;
+    char *filename = (argc > 1) ? argv[1] : "image.jpg";
  
-   elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
+    elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
  
-   win = elm_win_util_standard_add("Image", "Image resizer");
-   elm_win_autodel_set(win, EINA_TRUE);
-   evas_object_event_callback_add(win, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
+    window = elm_win_add(NULL, "image", ELM_WIN_BASIC);
+    elm_win_title_set(window, "Image resizer");
+    elm_win_autodel_set(window, EINA_TRUE);
+    evas_object_event_callback_add(window, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
 
-   vbox = elm_box_add(win);
+    vbox = elm_box_add(window);
+    elm_win_resize_object_add(window, vbox);
+    evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_show(vbox);
 
-    // top line: menu bar composed of a few labelled buttons ("Open", "Quit")
-    hbox = elm_box_add(vbox);
-    elm_box_horizontal_set(hbox, EINA_TRUE);
-    evas_object_box_align_set(hbox, 0.0, 0.0);
-     openButton = elm_button_add(hbox);
-     elm_object_text_set(openButton, "Open");
-     evas_object_smart_callback_add(openButton, "clicked", fileOpen, NULL);
-     evas_object_show(openButton);
-     elm_box_pack_start(hbox, openButton);
-    elm_box_pack_start(vbox, hbox);
+    toolbar = elm_toolbar_add(window);
+    elm_toolbar_align_set(toolbar, 0.0);
+    // evas_object_size_hint_weight_set(toolbar, 0.0, 0.0); // 0.0 s default
+    evas_object_size_hint_align_set(toolbar, EVAS_HINT_FILL, 0.0);
+    {
+        Elm_Object_Item *fileItem;
+	Evas_Object *fileMenu;
+
+        fileItem = elm_toolbar_item_append(toolbar, NULL, "File", NULL, NULL);
+        elm_toolbar_item_menu_set(fileItem, EINA_TRUE);
+        fileMenu = elm_toolbar_item_menu_get(fileItem);
+        elm_menu_item_add(fileMenu, NULL, NULL, "Open", fileOpen, NULL);
+        elm_menu_item_add(fileMenu, NULL, NULL, "Quit", quitGUI, NULL);
+    }
+    elm_box_pack_end(vbox, toolbar);
+    evas_object_show(toolbar);
 
     image = elm_image_add(vbox);
-     elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
-     elm_image_aspect_fixed_set(image, EINA_FALSE);
-     elm_image_file_set(image, filename, NULL);
-     {
-      int w, h;
-      elm_image_object_size_get(image, &w, &h);
-      evas_object_size_hint_min_set(image, w, h);
-     }
-     evas_object_show(image);
+    elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
+    elm_image_aspect_fixed_set(image, EINA_FALSE);
+    elm_image_file_set(image, filename, NULL);
+    {
+        int w, h;
+        elm_image_object_size_get(image, &w, &h);
+        evas_object_size_hint_min_set(image, w, h);
+    }
+    elm_win_resize_object_add(window, image);
+    evas_object_show(image);
     elm_box_pack_end(vbox, image);
 
-   /* The following sequence should resize the window to fit the image's
-    * natural size and then allow the user to resize the window and
-    * as a consequence resize the image. */
-   elm_win_resize_object_add(win, image);
-   //evas_object_size_hint_weight_set(image, 1.0, 1.0);
+    /* When you resize the window, the image should resize but the menu bar
+     * remain of fixed height */
+    // evas_object_size_hint_weight_set(image, 1.0, 1.0);
 
-   evas_object_show(win);
-   elm_run();
-   return 0;
+    evas_object_show(window);
+
+    elm_run();
+
+    return 0;
 }
-
 ELM_MAIN()
 
 /* Quit on Control-Q */
@@ -96,4 +109,10 @@ static void
 fileOpen(void *data, Evas_Object *obj, void *event_info)
 {
 printf("Open\n");
+}
+
+static void
+quitGUI(void *data, Evas_Object *obj, void *event_info)
+{
+    exit(0);  /* There must be a more gracious way... */
 }
