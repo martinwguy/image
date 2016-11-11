@@ -12,11 +12,13 @@
  * and "Quit".
  *
  * Bugs:
- *    - It doesn't allow you to start it without an initial image.
- *    - You can't resize the window.
- *    - File-Open doesn't do anything.
+ * - It doesn't allow you to start it without an initial image.
+ * - File-Open doesn't do anything.
+ * - You can resize the window but the image stays the same size
+ * - You have to click and release the File menu before clicking the menu
+ *	items (presumably because the menubar is implemented a toolbar).
  *
- *     Martin Guy <martinwguy@gmail.com>, October 2016.
+ *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  */
 
 #include <Elementary.h>
@@ -32,7 +34,6 @@ elm_main(int argc, char **argv)
     Evas_Object *window;
     Evas_Object *vbox;
     Evas_Object *toolbar;
-    Evas_Object *openButton, *quitButton;
     Evas_Object *image;
     char *filename = (argc > 1) ? argv[1] : "image.jpg";
  
@@ -44,17 +45,14 @@ elm_main(int argc, char **argv)
     evas_object_event_callback_add(window, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
 
     vbox = elm_box_add(window);
-    elm_win_resize_object_add(window, vbox);
-    evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_show(vbox);
 
-    toolbar = elm_toolbar_add(window);
+    toolbar = elm_toolbar_add(vbox);
+    // Put the "File" item on the left hand side
     elm_toolbar_align_set(toolbar, 0.0);
-    // evas_object_size_hint_weight_set(toolbar, 0.0, 0.0); // 0.0 s default
-    evas_object_size_hint_align_set(toolbar, EVAS_HINT_FILL, 0.0);
     {
+        Evas_Object *fileMenu;
         Elm_Object_Item *fileItem;
-	Evas_Object *fileMenu;
 
         fileItem = elm_toolbar_item_append(toolbar, NULL, "File", NULL, NULL);
         elm_toolbar_item_menu_set(fileItem, EINA_TRUE);
@@ -74,20 +72,29 @@ elm_main(int argc, char **argv)
         elm_image_object_size_get(image, &w, &h);
         evas_object_size_hint_min_set(image, w, h);
     }
-    elm_win_resize_object_add(window, image);
-    evas_object_show(image);
     elm_box_pack_end(vbox, image);
+    evas_object_show(image);
 
-    /* When you resize the window, the image should resize but the menu bar
-     * remain of fixed height */
-    // evas_object_size_hint_weight_set(image, 1.0, 1.0);
+    evas_object_size_hint_weight_set(toolbar, 0.0, 0.0);
+    //evas_object_size_hint_align_set(toolbar, 0.0, 0.0);
+    evas_object_size_hint_align_set(toolbar, EVAS_HINT_FILL, 0.0);
+    evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+    // Resize the window to its contents
+    elm_win_resize_object_add(window, vbox);
     evas_object_show(window);
+
+    // Then allow the user or WM to resize the contents
+    evas_object_size_hint_weight_set(vbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+    evas_object_size_hint_min_set(image, 1, 1);
+
 
     elm_run();
 
     return 0;
 }
+
 ELM_MAIN()
 
 /* Quit on Control-Q */
