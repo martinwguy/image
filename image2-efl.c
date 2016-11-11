@@ -13,10 +13,8 @@
  *
  * Bugs:
  * - It doesn't allow you to start it without an initial image.
- * - File-Open doesn't do anything.
- * - You can resize the window but the image stays the same size
- * - You have to click and release the File menu before clicking the menu
- *	items (presumably because the menubar is implemented a toolbar).
+ * - Instead of a "File" menu there are just two buttons "Open" and "Quit".
+ * - the Open button doesn't do anything.
  *
  *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  */
@@ -25,7 +23,7 @@
 
 /* Event handlers */
 static void keyDown(void *data, Evas *e, Evas_Object *obj, void *event_info);
-static void fileOpen(void *data, Evas_Object *obj, void *event_info);
+static void openFile(void *data, Evas_Object *obj, void *event_info);
 static void quitGUI(void *data, Evas_Object *obj, void *event_info);
 
 EAPI_MAIN int
@@ -33,7 +31,10 @@ elm_main(int argc, char **argv)
 {
     Evas_Object *window;
     Evas_Object *vbox;
-    Evas_Object *toolbar;
+    Evas_Object *hbox;	/* The "menu toolbar" */
+    Evas_Object *openButton;
+    Evas_Object *quitButton;
+    Evas_Object *menu;
     Evas_Object *image;
     char *filename = (argc > 1) ? argv[1] : "image.jpg";
  
@@ -44,24 +45,28 @@ elm_main(int argc, char **argv)
     elm_win_autodel_set(window, EINA_TRUE);
     evas_object_event_callback_add(window, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
 
+    /* Container for menu toolbar and image below it */
     vbox = elm_box_add(window);
     evas_object_show(vbox);
 
-    toolbar = elm_toolbar_add(vbox);
-    // Put the "File" item on the left hand side
-    elm_toolbar_align_set(toolbar, 0.0);
-    {
-        Evas_Object *fileMenu;
-        Elm_Object_Item *fileItem;
+    /* Menu toolbar, implemented as an hbox of buttons.
+     * I couldn't get the menu stuff to work. */
+    hbox = elm_box_add(window);
+    elm_box_align_set(hbox, 0.0, 0.0);
+    elm_box_horizontal_set(hbox, EINA_TRUE);
+    elm_box_pack_end(vbox, hbox);
+    evas_object_show(hbox);
 
-        fileItem = elm_toolbar_item_append(toolbar, NULL, "File", NULL, NULL);
-        elm_toolbar_item_menu_set(fileItem, EINA_TRUE);
-        fileMenu = elm_toolbar_item_menu_get(fileItem);
-        elm_menu_item_add(fileMenu, NULL, NULL, "Open", fileOpen, NULL);
-        elm_menu_item_add(fileMenu, NULL, NULL, "Quit", quitGUI, NULL);
-    }
-    elm_box_pack_end(vbox, toolbar);
-    evas_object_show(toolbar);
+    openButton = elm_button_add(hbox);
+    quitButton = elm_button_add(hbox);
+    elm_object_part_text_set(openButton, NULL, "Open");
+    elm_object_part_text_set(quitButton, NULL, "Quit");
+    evas_event_callback_add(openButton, EVAS_CALLBACK_MOUSE_DOWN, openFile, NULL);
+    evas_event_callback_add(quitButton, EVAS_CALLBACK_MOUSE_DOWN, quitGUI, NULL);
+    elm_box_pack_end(hbox, openButton);
+    elm_box_pack_end(hbox, quitButton);
+    evas_object_show(openButton);
+    evas_object_show(quitButton);
 
     image = elm_image_add(vbox);
     elm_image_resizable_set(image, EINA_TRUE, EINA_TRUE);
@@ -75,9 +80,8 @@ elm_main(int argc, char **argv)
     elm_box_pack_end(vbox, image);
     evas_object_show(image);
 
-    evas_object_size_hint_weight_set(toolbar, 0.0, 0.0);
-    //evas_object_size_hint_align_set(toolbar, 0.0, 0.0);
-    evas_object_size_hint_align_set(toolbar, EVAS_HINT_FILL, 0.0);
+    evas_object_size_hint_weight_set(hbox, 0.0, 0.0);
+    evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
     evas_object_size_hint_weight_set(image, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
     evas_object_size_hint_align_set(image, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
@@ -113,7 +117,7 @@ keyDown(void *data, Evas *evas, Evas_Object *obj, void *einfo)
 
 /* One day... */
 static void
-fileOpen(void *data, Evas_Object *obj, void *event_info)
+openFile(void *data, Evas_Object *obj, void *event_info)
 {
 printf("Open\n");
 }
