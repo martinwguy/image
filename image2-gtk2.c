@@ -29,6 +29,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <stdlib.h>	/* for exit() */
 
 /* Event callbacks */
 static void openFile(GtkWidget *widget, gpointer data);
@@ -37,10 +38,11 @@ static gboolean exposeImage(GtkWidget *widget, gpointer data);
 /* Utility functions */
 static void show_error(char *message);
 
-// openFile() needs both "window" to open the dialog and "image" to be able
-// to change the displayed image. We should put them both in a struct and pass
-// a pointer to that as the callback data but I can't be bothered.
-// Instead, we make "window" global. After all, there's only one.
+/* openFile() needs both "window" to open the dialog and "image" to be able
+ * to change the displayed image. We should put them both in a struct and pass
+ * a pointer to that as the callback data but I can't be bothered.
+ * Instead, we make "window" global. After all, there's only one.
+ */
 
 static GtkWidget *window;
 static GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
@@ -72,19 +74,20 @@ main(int argc, char **argv)
 	    g_message("%s", error->message);
 	    exit(1);
 	}
+	/* To start, the displayed image is the same as the original. */
+	image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
+    } else {
+	/* Starting with no image filename */
+	image = gtk_image_new();
     }
-
-    /* On expose/resize, the iamge's pixbuf will be overwrtten
-     * but we still need the original, so use a copy of it */
-    image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Image resizer");
 
-    // Quit if they ask the window manager to close the window.
+    /* Quit if they ask the window manager to close the window */
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
-    // or of they press control-Q (bundled with the stock item used below)
+    /* or of they press control-Q (bundled with the stock item used below) */
     accel_group = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 
@@ -109,7 +112,7 @@ main(int argc, char **argv)
 		     G_CALLBACK(gtk_main_quit), NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), fileMi);
 
-    // When the window is resized, scale the image to fit
+    /* When the window is resized, scale the image to fit */
     g_signal_connect(image, "expose-event",
 		     G_CALLBACK(exposeImage), NULL);
 	
@@ -152,7 +155,7 @@ openFile(GtkWidget *widget, gpointer data)
 	} else {
 	    GdkPixbuf *oldPixbuf = sourcePixbuf;
 	    sourcePixbuf = newPixbuf;
-	    g_object_unref(oldPixbuf);
+	    if (oldPixbuf != NULL) g_object_unref(oldPixbuf);
 	    /* Resize the window to display the image at 1:1 zoom. */
 	    /* This sets the widget's minimum size and asks the window go
 	     * become tiny. Result: it shrinks to the minimum that fits the
@@ -175,7 +178,6 @@ openFile(GtkWidget *widget, gpointer data)
  * The image-changing code ensures that the pixbuf containing a new image
  * will be loaded at a different address from the old one.
  */
-
 static gboolean
 exposeImage(GtkWidget *widget, gpointer data)
 {
@@ -207,7 +209,8 @@ exposeImage(GtkWidget *widget, gpointer data)
 				    widget->allocation.height,
 				    GDK_INTERP_BILINEAR)
 	);
-        g_object_unref(imagePixbuf); /* Free the old one */
+	/* Free the old one */
+        if (imagePixbuf != NULL) g_object_unref(imagePixbuf);
 
 	oldPixbuf = sourcePixbuf;
     }
