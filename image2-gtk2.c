@@ -16,7 +16,6 @@
  *    - When you load a new image, the window is not resized to display
  *	the image at 1:1 zoom.
  *    - You can't start it without a filename.
- *    - It doesn't quit on Control-Q
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -90,7 +89,7 @@ main(int argc, char **argv)
     // Quit if they ask the window manager to close the window.
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
-    // or of they press control-Q
+    // or of they press control-Q (bundled with the stock item used below)
     accel_group = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 

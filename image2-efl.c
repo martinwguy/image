@@ -14,7 +14,9 @@
  * Bugs:
  * - Instead of a "File" menu there are just two buttons "Open" and "Quit".
  * - If you Open a duff file, you get a black window instead of an error.
- * - When you open a new file, the window is not resized to display it 1:1.
+ * - When you open a smaller file, the window doesn't shrink to fit.
+ *
+ * Features:
  * - With window >10000 pixels wide, only the left 10000 columns are displayed.
  *
  *	Martin Guy <martinwguy@gmail.com>, October-November 2016.

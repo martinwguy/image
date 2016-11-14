@@ -12,7 +12,11 @@
  *    - If you resize the window to minimum size (1x1), GTK goes into a
  *	100% CPU loop for about a minute, during which time it does not
  *	refresh the display, then recovers as mysteriously as it died.
- *    - It doesn't quit on Control-Q
+ *    - It doesn't quit on Control-Q.
+ *	GTK2 has Accelerators (global keys that activate menu items) and
+ *	Mnemonics (the underlined characters in items of an open menu) but
+ *	doesn't seem to have a menu-less global mechanism to implement
+ *	Control-Q quit.
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -50,11 +54,11 @@ main(int argc, char **argv)
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-    // Quit if they ask the window manager to close the window
+    /* Quit if they ask the window manager to close the window */
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
 
-    // When the window is resized, scale the image to fit
+    /* When the window is resized, scale the image to fit */
     g_signal_connect(image, "expose-event",
 		     G_CALLBACK(exposeImage), NULL);
 	
