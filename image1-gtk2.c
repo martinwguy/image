@@ -12,18 +12,15 @@
  *    - If you resize the window to minimum size (1x1), GTK goes into a
  *	100% CPU loop for about a minute, during which time it does not
  *	refresh the display, then recovers as mysteriously as it died.
- *    - It doesn't quit on Control-Q.
- *	GTK2 has Accelerators (global keys that activate menu items) and
- *	Mnemonics (the underlined characters in items of an open menu) but
- *	doesn't seem to have a menu-less global mechanism to implement
- *	Control-Q quit.
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 /* Event callbacks */
+static gboolean keyPress(GtkWidget *widget, gpointer data);
 static gboolean exposeImage(GtkWidget *widget, gpointer data);
 
 static GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
@@ -48,7 +45,7 @@ main(int argc, char **argv)
 	}
     }
 
-    /* On expose/resize, the image's pixbuf will be overwrtten
+    /* On expose/resize, the image's pixbuf will be overwritten
      * but we will still need the original, so take a copy of it */
     image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
 
@@ -57,10 +54,13 @@ main(int argc, char **argv)
     /* Quit if they ask the window manager to close the window */
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
+    /* Quit on control-Q.
+     * The usual mechanisms is Accelerators (keys that invoke menu items) but
+     * we have no menus so catch keypresses and check for Ctrl-Q. */
+    g_signal_connect(window, "key-press-event", G_CALLBACK(keyPress), NULL);
 
     /* When the window is resized, scale the image to fit */
-    g_signal_connect(image, "expose-event",
-		     G_CALLBACK(exposeImage), NULL);
+    g_signal_connect(image, "expose-event", G_CALLBACK(exposeImage), NULL);
 	
     gtk_container_add(GTK_CONTAINER(window), image);
     gtk_widget_show_all(window);
@@ -78,6 +78,19 @@ main(int argc, char **argv)
 }
 
 /* Callback functions */
+
+/* Check for Control-Q and quit if it was pressed */
+static gboolean
+keyPress(GtkWidget *widget, gpointer data)
+{
+    GdkEventKey *event = (GdkEventKey *) data;
+
+    if (event->keyval == GDK_q && (event->state & GDK_CONTROL_MASK)) {
+	gtk_main_quit();
+	return FALSE;
+    } else
+	return TRUE;
+}
 
 /* If the window has been resized, resize the image to it. */
 static gboolean
