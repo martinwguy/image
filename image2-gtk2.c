@@ -12,10 +12,7 @@
  * and "Quit".
  *
  * Bugs:
- *    - You can grow the image but can't resize the image smaller than 1:1.
- *    - When you load a new image, the window is not resized to display
- *	the image at 1:1 zoom.
- *    - You can't start it without a filename.
+ *	None
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -60,7 +57,6 @@ main(int argc, char **argv)
     GtkWidget *openMi;
     GtkWidget *quitMi;
     GtkWidget *sep;
-
     GtkAccelGroup *accel_group;
 
     gtk_init(&argc, &argv);
@@ -74,17 +70,16 @@ main(int argc, char **argv)
 	sourcePixbuf = gdk_pixbuf_new_from_file(argv[1], &error);
 	if (sourcePixbuf == NULL) {
 	    g_message("%s", error->message);
-	    return 1; /* exit() */
+	    exit(1);
 	}
-	/* on expose/resize, the iamge's pixbuf will be overwrtten
-	 * but we still need the original, so use a copy of it */
-	image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
-    } else {
-	g_message("Usage: image file");
-	return 1; /* exit() */
     }
 
+    /* On expose/resize, the iamge's pixbuf will be overwrtten
+     * but we still need the original, so use a copy of it */
+    image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
+
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Image resizer");
 
     // Quit if they ask the window manager to close the window.
     g_signal_connect(G_OBJECT(window), "destroy",
@@ -129,6 +124,13 @@ main(int argc, char **argv)
 
 /* Callback functions */
 
+/* To force the window to resize to fit a new image at 1:1 zoom, we set the
+ * image widget's minimum size to the desired size then resize the window to
+ * 1x1. This flag remembers that we need to undo this trickery when the
+ * window-resizing events are over.
+ */
+static gboolean undoMinSize = 0;
+
 static void
 openFile(GtkWidget *widget, gpointer data)
 {
@@ -148,14 +150,20 @@ openFile(GtkWidget *widget, gpointer data)
 	if (newPixbuf == NULL) {
 	    show_error(error->message);
 	} else {
-	    /* Set the displayed image to the same size as new image so
-	     * that it starts out at 1:1 zoom. The window manager may
-	     * resize this to fit the screen.
-	     * On-screen image will change at next expose event.
-	     */
 	    GdkPixbuf *oldPixbuf = sourcePixbuf;
 	    sourcePixbuf = newPixbuf;
 	    g_object_unref(oldPixbuf);
+	    /* Resize the window to display the image at 1:1 zoom. */
+	    /* This sets the widget's minimum size and asks the window go
+	     * become tiny. Result: it shrinks to the minimum that fits the
+	     * widget and the menu.
+	     * To allow the image to be shrunk by the user, its minimum size
+	     * will be set back to 1x1 in the exposeEvent() routine. */
+	    gtk_widget_set_size_request(image,
+					gdk_pixbuf_get_width(sourcePixbuf),
+					gdk_pixbuf_get_height(sourcePixbuf));
+	    gtk_window_resize(GTK_WINDOW(window), 1, 1);
+	    undoMinSize = 1;
 	}
 	g_free(filename);
     }
@@ -176,14 +184,19 @@ exposeImage(GtkWidget *widget, gpointer data)
     static GdkPixbuf *oldPixbuf = NULL;
     GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
 
-    imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
-    if (imagePixbuf == NULL) {
-	g_message("Can't get on-screen pixbuf");
-	return TRUE;
+    /* Undo the min size request that was used in openFile to make the
+     * containing window resize to fit the new image. */
+    if (undoMinSize) {
+	gtk_widget_set_size_request(image, 1, 1);
+	undoMinSize = 0;
     }
+
+    imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
+
     /* Recreate displayed image if source file has changed
      * or image size has changed.  */
-    if (sourcePixbuf != oldPixbuf ||
+    if (imagePixbuf == NULL ||  /* Because we started with no filename */
+	sourcePixbuf != oldPixbuf ||
 	(widget->allocation.width != gdk_pixbuf_get_width(imagePixbuf) ||
          widget->allocation.height != gdk_pixbuf_get_height(imagePixbuf))) {
 
@@ -196,13 +209,7 @@ exposeImage(GtkWidget *widget, gpointer data)
 	);
         g_object_unref(imagePixbuf); /* Free the old one */
 
-	/* If the image has changed, resize the window to 1:1 zoom */
-	if (sourcePixbuf != oldPixbuf) {
-	    gtk_widget_set_size_request(image,
-					gdk_pixbuf_get_width(sourcePixbuf),
-					gdk_pixbuf_get_height(sourcePixbuf));
-	    oldPixbuf = sourcePixbuf;
-	}
+	oldPixbuf = sourcePixbuf;
     }
 
     return FALSE;
