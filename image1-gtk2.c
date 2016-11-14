@@ -23,12 +23,11 @@
 static gboolean keyPress(GtkWidget *widget, gpointer data);
 static gboolean exposeImage(GtkWidget *widget, gpointer data);
 
-static GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
-
 int
 main(int argc, char **argv)
 {
     GtkWidget *window;
+    GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
     GtkWidget *image;		/* As displayed on the screen */
     char *filename =  (argc > 1) ? argv[1] : "image.jpg";
 
@@ -46,7 +45,7 @@ main(int argc, char **argv)
     }
 
     /* On expose/resize, the image's pixbuf will be overwritten
-     * but we will still need the original, so take a copy of it */
+     * but we will still need the original image so take a copy of it */
     image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -54,14 +53,12 @@ main(int argc, char **argv)
     /* Quit if they ask the window manager to close the window */
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(gtk_main_quit), NULL);
-    /* Quit on control-Q.
-     * The usual mechanisms is Accelerators (keys that invoke menu items) but
-     * we have no menus so catch keypresses and check for Ctrl-Q. */
+    /* Quit on control-Q. */
     g_signal_connect(window, "key-press-event", G_CALLBACK(keyPress), NULL);
 
     /* When the window is resized, scale the image to fit */
-    g_signal_connect(image, "expose-event", G_CALLBACK(exposeImage), NULL);
-	
+    g_signal_connect(image, "expose-event", G_CALLBACK(exposeImage), sourcePixbuf);
+
     gtk_container_add(GTK_CONTAINER(window), image);
     gtk_widget_show_all(window);
 
@@ -96,6 +93,7 @@ keyPress(GtkWidget *widget, gpointer data)
 static gboolean
 exposeImage(GtkWidget *widget, gpointer data)
 {
+    GdkPixbuf *sourcePixbuf = data;	/* As read from a file */
     GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
 
     imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
