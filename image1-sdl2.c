@@ -1,10 +1,22 @@
 /*
- * SDL2 program to display a resizable image in a window.
+ * image1-sdl2.c: GUI toolkit test piece to display an image file.
  *
- * Inspired by
+ * The image file is given as a command-line argument (default: image.jpg).
+ * The window should open to exactly fit the image at one-pixel-per-pixel size.
+ * The user can then resize the window in which case the image scales to fit
+ * the window without keeping its aspect ratio.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
+ *
+ * See:
  * www.parallelrealities.co.uk/2011/09/basic-game-tutorial-1-opening-window.html
  * http://lazyfoo.net/tutorials/SDL/35_window_events
  * https://web.archive.org/web/20140306003549/http://www.programmersranch.com/2013/11/sdl2-displaying-image-in-window.html
+ *
+ * Bugs:
+ *    - None.
+ *
+ *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  */
 
 #include <SDL2/SDL.h>
@@ -21,18 +33,14 @@ char **argv;
     SDL_Texture	*texture;   /* image converted to a texture of the same size */
     SDL_Rect	rect;	    /* */
     SDL_Event	event;
-
-    if (argc != 2) {
-	printf("Usage: %s image.jpg\n", argv[0]);
-	exit(1);
-    }
+    char *filename = (argc > 1) ? argv[1] : "image.jpg";
 
     SDL_Init(SDL_INIT_VIDEO);
     atexit(SDL_Quit);
 
-    image = IMG_Load(argv[1]);
+    image = IMG_Load(filename);
     if (!image) {
-	fprintf(stderr, "Failed to read image: %s\n", SDL_GetError());
+	fprintf(stderr, "Failed to read image file: %s\n", SDL_GetError());
 	perror(argv[1]);
 	exit(1);
     }
@@ -65,10 +73,9 @@ char **argv;
 	exit(0);
 
     case SDL_KEYDOWN:
-	switch (event.key.keysym.sym) {
-	case SDLK_ESCAPE:
-	    exit(0);
-	}
+	if (event.key.keysym.sym == SDLK_q &&
+	    event.key.keysym.mod & KMOD_CTRL)
+		exit(0);
 	break;
 
     case SDL_WINDOWEVENT:

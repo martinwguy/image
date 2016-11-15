@@ -1,5 +1,18 @@
 /*
- * SDL1.2 program to display a resizable image in a window.
+ * image1-sdl1.c: GUI toolkit test piece to display an image file.
+ *
+ * The image file is given as a command-line argument (default: image.jpg).
+ * The window should open to exactly fit the image at one-pixel-per-pixel size.
+ * The user can then resize the window in which case the image scales to fit
+ * the window without keeping its aspect ratio.
+ * If they hit Control-Q or poke the [X] icon in the window's titlebar,
+ * the application should quit.
+ *
+ * Bugs:
+ *    - The image doesn't scale; it is cropped top left.
+ *	SDL1 doesn't do image scaling. We can do it with libswscale or other.
+ *
+ *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  *
  * Inspired by
  * www.parallelrealities.co.uk/2011/09/basic-game-tutorial-1-opening-window.html
@@ -16,16 +29,12 @@ char **argv;
     SDL_Surface *screen;
     SDL_Surface *sourceImage, *image;
     SDL_Event	event;
+    char *filename = (argc > 1) ? argv[1] : "image.jpg";
 
-    if (argc != 2) {
-	printf("Usage: %s image.jpg\n", argv[0]);
-	exit(1);
-    }
-
-    SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO|SDL_DOUBLEBUF);
+    SDL_Init(SDL_INIT_VIDEO|SDL_DOUBLEBUF);
     atexit(SDL_Quit);
 
-    sourceImage = IMG_Load(argv[1]);
+    sourceImage = IMG_Load(filename);
     if (!sourceImage) {
 	fputs("Couldn't read ", stderr);
 	perror(argv[1]);
@@ -60,10 +69,9 @@ char **argv;
     case SDL_QUIT:
 	exit(0);
     case SDL_KEYDOWN:
-	switch (event.key.keysym.sym) {
-	case SDLK_ESCAPE:
-	    exit(0);
-	}
+	if (event.key.keysym.sym == SDLK_q &&
+	    event.key.keysym.mod & KMOD_CTRL)
+		exit(0);
 	break;
     case SDL_VIDEORESIZE:
 	// imageRect.w = event.resize.w;
