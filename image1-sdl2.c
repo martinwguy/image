@@ -45,8 +45,8 @@ char **argv;
 	exit(1);
     }
 
-    window = SDL_CreateWindow(
-	argv[0], SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    window = SDL_CreateWindow("image1-sdl2",
+	SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 	image->w, image->h, SDL_WINDOW_RESIZABLE);
     if (!window) {
 	printf("Failed to create window: %s\n", SDL_GetError());

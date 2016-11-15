@@ -101,6 +101,7 @@ char **argv;
     }
     /* Don't gobble up screen area with yet another border */
     AG_WindowSetPadding(window, 0, 0, 0, 0); /* Instead of 1 */
+    AG_WindowSetCaption(window, "image2-agar");
 
     /* Quit if they close the main window or press Ctrl-Q. */
     AG_BindGlobalKey(AG_KEY_Q, AG_KEYMOD_CTRL, AG_QuitGUI);

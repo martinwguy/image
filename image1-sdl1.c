@@ -11,6 +11,9 @@
  * Bugs:
  *    - The image doesn't scale; it is cropped top left.
  *	SDL1 doesn't do image scaling. We can do it with libswscale or other.
+ *	Debian has two packages providing libswscale. It is the same code but
+ *	libavutil2 and libavutil3 come from libavutil and has libswscale 3.0.0
+ *	libavutil4 comes from libffmpeg and hsa libswscale 4.2.1
  *
  *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  *
@@ -47,7 +50,7 @@ char **argv;
 	exit(1);
     }
 
-    SDL_WM_SetCaption(argv[0], NULL);
+    SDL_WM_SetCaption("image-sdl1", NULL);
 
     /* Convert image to screen's native format */
     {

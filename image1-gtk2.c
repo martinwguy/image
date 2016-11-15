@@ -49,7 +49,7 @@ main(int argc, char **argv)
     image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Image resizer");
+    gtk_window_set_title(GTK_WINDOW(window), "image1-gtk2");
 
     /* Quit if they ask the window manager to close the window */
     g_signal_connect(G_OBJECT(window), "destroy",

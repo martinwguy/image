@@ -31,5 +31,8 @@ image1-sdl2: image1-sdl2.c
 	@#  apt-get install libsdl2-dev libsdl2-image-dev
 	$(CC) $(CFLAGS) $< -o $@ `sdl2-config --libs` -lSDL2_image
 
+show: $(ALL)
+	for a in $(ALL); do ./$$a image2.jpg & done
+
 clean:
 	rm $(ALL)
