@@ -1,6 +1,7 @@
 ALL=	image1-agar image2-agar \
 	image1-efl image2-efl \
 	image1-gtk2 image2-gtk2 \
+	image1-gtk3 \
 	image1-sdl1 image1-sdl2
 
 all: $(ALL)
@@ -24,9 +25,6 @@ image2-gtk2: image2-gtk2.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-2.0`
 
 image1-gtk3: image1-gtk3.c
-	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
-
-image2-gtk3: image2-gtk3.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
 
 image1-sdl1: image1-sdl1.c
