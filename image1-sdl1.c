@@ -9,11 +9,10 @@
  * the application should quit.
  *
  * Bugs:
- *    - The image doesn't scale; it is cropped top left.
- *	SDL1 doesn't do image scaling. We can do it with libswscale or other.
- *	Debian has two packages providing libswscale. It is the same code but
- *	libavutil2 and libavutil3 come from libavutil and has libswscale 3.0.0
- *	libavutil4 comes from libffmpeg and hsa libswscale 4.2.1
+ *    - swscale can't rescale to smaller than 9x7.
+ *
+ * Features:
+ *    - It's a bit slow/laggy.
  *
  *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  *
@@ -23,14 +22,16 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <libswscale/swscale.h>
 
 int
 main(argc, argv)
 int argc;
 char **argv;
 {
+    SDL_Surface *window;
     SDL_Surface *screen;
-    SDL_Surface *sourceImage, *image;
+    SDL_Surface *sourceImage;	/* As read from file */
     SDL_Event	event;
     char *filename = (argc > 1) ? argv[1] : "image.jpg";
 
@@ -44,7 +45,7 @@ char **argv;
 	exit(1);
     }
 
-    screen = SDL_SetVideoMode(sourceImage->w, sourceImage->h, 0, SDL_HWPALETTE|SDL_RESIZABLE);
+    screen = SDL_SetVideoMode(sourceImage->w, sourceImage->h, 0, SDL_RESIZABLE);
     if (screen == NULL) {
 	printf("Couldn't create window: %s\n", SDL_GetError());
 	exit(1);
@@ -52,7 +53,7 @@ char **argv;
 
     SDL_WM_SetCaption("image-sdl1", NULL);
 
-    /* Convert image to screen's native format */
+    /* Convert source image to screen's native format */
     {
         SDL_Surface *temp;
         temp = SDL_DisplayFormat(sourceImage);
@@ -64,11 +65,16 @@ char **argv;
 	sourceImage = temp;
     }
 
+    /* sws_scale reads the N+1'th line of the source image so allocate
+     * an extra row */
+    sourceImage->pixels = realloc(sourceImage->pixels,
+				  sourceImage->pitch * (sourceImage->h + 1));
+
     SDL_BlitSurface(sourceImage, NULL, screen, NULL);
     SDL_Flip(screen);
 
     while (SDL_WaitEvent(&event)) switch (event.type) {
-    /* Closing the Window or pressing Escape will exit the program */
+    /* Closing the window or pressing Ctrl-Q will exit the program */
     case SDL_QUIT:
 	exit(0);
     case SDL_KEYDOWN:
@@ -77,13 +83,59 @@ char **argv;
 		exit(0);
 	break;
     case SDL_VIDEORESIZE:
-	// imageRect.w = event.resize.w;
-	// imageRect.h = event.resize.h;
-	// Need to scale sourceImage into image here and Blit that.
-	// see https://wiki.allegro.cc/index.php?title=Bilinear_resize
+	{
+	    SDL_Surface *image = NULL;	/* Scaled to window size */
+	    struct SwsContext *sws_ctx;
+	    static int srcStride[4], destStride[4];
+	    int w = event.resize.w;
+	    int h = event.resize.h;
 
-	SDL_BlitSurface(sourceImage, NULL, screen, NULL);
-	SDL_Flip(screen);
+	    /* sws_scale() can't resize to less than 9 wide or 7 deep,
+	     * determined experimentally.
+	     * Error is "Can't create 898x6 scale context."
+	     */
+	    if (w < 9) w = 9;
+	    if (h < 7) h = 7;
+
+	    /* Resize display surface to new window size */
+	    screen = SDL_SetVideoMode(w, h, 0, SDL_RESIZABLE);
+
+	    image = SDL_CreateRGBSurface(0, w, h,
+		    sourceImage->format->BitsPerPixel,
+		    sourceImage->format->Rmask,
+		    sourceImage->format->Gmask,
+		    sourceImage->format->Bmask,
+		    sourceImage->format->Amask);
+	    /* Add an extra row because sws_scale writes past the end
+	     * of the image */
+	    image->pixels = realloc(image->pixels,
+				    image->pitch * (image->h + 1));
+
+	    sws_ctx = sws_getContext(
+			sourceImage->w, sourceImage->h, PIX_FMT_RGB32,
+			w, h, PIX_FMT_RGB32,
+			SWS_BILINEAR, NULL, NULL, NULL);
+	    if (!sws_ctx) {
+		fprintf(stderr, "Can't create %dx%d scale context.\n", w, h);
+		exit(1);
+	    }
+
+	    srcStride[0] = sourceImage->pitch;
+	    destStride[0] = image->pitch;
+
+	    sws_scale(sws_ctx,
+		      (const uint8_t * const*) &(sourceImage->pixels),
+		      srcStride, 0, sourceImage->h,
+		      (uint8_t * const*) &(image->pixels),
+		      destStride);
+
+	    sws_freeContext(sws_ctx);
+
+	    SDL_BlitSurface(image, NULL, screen, NULL);
+	    SDL_Flip(screen);
+
+	    SDL_FreeSurface(image);
+	}
 	break;
     }
 }

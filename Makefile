@@ -23,9 +23,15 @@ image1-gtk2: image1-gtk2.c
 image2-gtk2: image2-gtk2.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-2.0`
 
+image1-gtk3: image1-gtk3.c
+	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
+
+image2-gtk3: image2-gtk3.c
+	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
+
 image1-sdl1: image1-sdl1.c
 	@# apt-get install libsdl1.2-dev libsdl-image1.2-dev
-	$(CC) $(CFLAGS) $< -o $@ `sdl-config --libs` -lSDL_image
+	$(CC) $(CFLAGS) $< -o $@ `sdl-config --libs` -lSDL_image -lswscale
 
 image1-sdl2: image1-sdl2.c
 	@#  apt-get install libsdl2-dev libsdl2-image-dev
