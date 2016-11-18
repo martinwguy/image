@@ -1,5 +1,5 @@
 /*
- * image2-efl: GUI toolkit test piece to display an image file.
+ * image2-efl.c: GUI toolkit test piece to display an image file.
  *
  * An optional image file is given as a command-line argument and, if given,
  * The window should open to exactly fit the image at one-pixel-per-pixel size.
