@@ -2,6 +2,7 @@ ALL=	image1-agar image2-agar \
 	image1-efl image2-efl \
 	image1-gtk2 image2-gtk2 \
 	image1-gtk3 \
+	image1-qt4/image1-qt4 \
 	image1-sdl1 image1-sdl2
 
 all: $(ALL)
@@ -34,6 +35,15 @@ image1-sdl1: image1-sdl1.c
 image1-sdl2: image1-sdl2.c
 	@#  apt-get install libsdl2-dev libsdl2-image-dev
 	$(CC) $(CFLAGS) $< -o $@ `sdl2-config --libs` -lSDL2_image
+
+image1-qt4/image1-qt4: image1-qt4/image1-qt4.cpp image1-qt4/Makefile
+	cd image1-qt4 && make image1-qt4 && touch image1-qt4
+
+image1-qt4/Makefile: image1-qt4/image1-qt4.pro
+	cd image1-qt4 && qmake
+
+image1-qt4/image1-qt4.pro:
+	cd image1-qt4 && qmake -project
 
 show: $(ALL)
 	for a in $(ALL); do ./$$a image2.jpg & done
