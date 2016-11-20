@@ -8,23 +8,18 @@
  * If they hit Control-Q or poke the [X] icon in the window's titlebar,
  * the application should quit.
  *
- * It seems that in GTK3 you cannot resize a window smaller than the image
- * it currently contains, which means you can enlarge the window, and
- * the image grows too, but you cannot then reduce the window size again!
- *   Someone suggested putting the image in a GtkScrolledWindow and resizing
- * the image to exactly the size of scrolled window so that the scrollbars
- * disappear. It sort of works - see the bugs - and is gross.
+ * If you put an image in a GTK window, you cannot resize the window
+ * smaller than the image it currently contains, which means you can
+ * enlarge the window, and the image grows too, but you cannot then
+ * reduce the window size again.
+ * We get round this by displaying a cairo drawing area inside a 1x1 grid
+ * container.
  *
  * Bugs:
- *    - When you shrink the window, the viewport's scrollbars appear and
- *	then don't go away when you release the mouse button.
- *    - If you shrink the window size quickly, the image slobbers down and right
- *	in the viewport, leaving a variable-width white border top and left.
- *	Sometimes, when you stop shrinking and release the mouse, the white
- *	border does not disappear and tweaking the scrollbars reveals that the
- *	image is visualised the correct size for the window but centered on a
- *	slightly larger white canvas tens of pixels larger than the image.
- *    - The window has an arbitrary minimum size of 42x42.
+ *    -	If you resize the window to 1x1, it goes into a 100% CPU loop. If
+ *	you then enlarge the window again you are left with a white area
+ *	and it doesn't respond to [x] or Control-Q any more. It sometimes
+ *	recovers, but during the paralysis its VM usage goes from 46M to 940M.
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -34,16 +29,15 @@
 
 /* Event callbacks */
 static gboolean keyPress(GtkWidget *widget, gpointer data);
-static gboolean sizeChanged(GtkWidget *widget, GtkAllocation *allocation, gpointer data);
-
-static    GtkWidget *image;		/* As displayed on the screen */
+static gboolean draw_picture(GtkWidget *widget, cairo_t *cr, gpointer data);
 
 int
 main(int argc, char **argv)
 {
     GtkWidget *window;
-    GtkWidget *viewport;
-    GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
+    GtkWidget *grid;
+    GtkWidget *drawing_area;
+    GdkPixbuf *pixbuf = NULL;	/* As read from a file */
     char *filename =  (argc > 1) ? argv[1] : "image.jpg";
 
     gtk_init(&argc, &argv);
@@ -52,21 +46,16 @@ main(int argc, char **argv)
      * gtk_image_new_from_file() doesn't flag errors */
     {
 	GError *error = NULL;
-	sourcePixbuf = gdk_pixbuf_new_from_file(filename, &error);
-	if (sourcePixbuf == NULL) {
+	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+	if (pixbuf == NULL) {
 	    g_message("%s", error->message);
 	    return 1; /* exit() */
 	}
     }
 
-    /* On expose/resize, the image's pixbuf will be overwritten
-     * but we will still need the original image so take a copy of it */
-    image = gtk_image_new_from_pixbuf(gdk_pixbuf_copy(sourcePixbuf));
-
-    viewport = gtk_scrolled_window_new(NULL, NULL);
-    /* Saying "1x1" reduces the window's minumum size from 55x55 to 42x42. */
-    gtk_scrolled_window_set_min_content_width(GTK_SCROLLED_WINDOW(viewport), 1);
-    gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(viewport), 1);
+    drawing_area = gtk_drawing_area_new();
+    gtk_widget_set_hexpand(drawing_area, TRUE);
+    gtk_widget_set_vexpand(drawing_area, TRUE);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "image1-gtk3");
@@ -78,18 +67,17 @@ main(int argc, char **argv)
     g_signal_connect(window, "key-press-event", G_CALLBACK(keyPress), NULL);
 
     /* When the window is resized, scale the image to fit */
-    g_signal_connect(viewport, "size-allocate", G_CALLBACK(sizeChanged), sourcePixbuf);
+    g_signal_connect(drawing_area, "draw", G_CALLBACK(draw_picture), pixbuf);
 
-    /* The image is in a scrolled window container so that the main window
-     * can be resized smaller than the current image. */
-    gtk_container_add(GTK_CONTAINER(viewport), image);
-    gtk_container_add(GTK_CONTAINER(window), viewport);
+    grid = gtk_grid_new();
+    gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 0, 1, 1);
 
-    //gtk_window_set_resizable(GTK_WINDOW(window), 1);
+    gtk_container_add(GTK_CONTAINER(window), grid);
+
     /* Open the window the same size as the image */
     gtk_window_set_default_size(GTK_WINDOW(window),
-	gdk_pixbuf_get_width(sourcePixbuf),
-	gdk_pixbuf_get_height(sourcePixbuf));
+	gdk_pixbuf_get_width(pixbuf),
+	gdk_pixbuf_get_height(pixbuf));
 
     gtk_widget_show_all(window);
 
@@ -117,29 +105,17 @@ keyPress(GtkWidget *widget, gpointer data)
  * and we scale the image to the dimensions of the scrolledwindow so that
  * the scrollbars disappear again. Yuk! */
 static gboolean
-sizeChanged(GtkWidget *widget, GtkAllocation *allocation, gpointer data)
+draw_picture(GtkWidget *drawing_area, cairo_t *cr, gpointer data)
 {
-    GdkPixbuf *sourcePixbuf = data;	/* As read from a file */
-    GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
+    GdkPixbuf *pixbuf = data;	/* As read from a file */
+    GdkPixbuf *image;		/* Scaled to the window */
+    gint width = gtk_widget_get_allocated_width(drawing_area);
+    gint height = gtk_widget_get_allocated_height(drawing_area);
 
-    imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(image));
-    if (imagePixbuf == NULL) {
-	g_message("Can't get on-screen pixbuf");
-	return TRUE;
-    }
-    /* Recreate the displayed image if the image size has changed. */
-    if (allocation->width != gdk_pixbuf_get_width(imagePixbuf) ||
-        allocation->height != gdk_pixbuf_get_height(imagePixbuf)) {
-
-	gtk_image_set_from_pixbuf(
-	    GTK_IMAGE(image),
-	    gdk_pixbuf_scale_simple(sourcePixbuf,
-				    allocation->width,
-				    allocation->height,
-				    GDK_INTERP_BILINEAR)
-	);
-        g_object_unref(imagePixbuf); /* Free the old one */
-    }
+    image = gdk_pixbuf_scale_simple(pixbuf, width, height, GDK_INTERP_BILINEAR);
+    gdk_cairo_set_source_pixbuf(cr, image, 0, 0);
+    cairo_paint(cr);
+    g_object_unref(image);
 
     return FALSE;
 }
