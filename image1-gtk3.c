@@ -13,7 +13,7 @@
  * enlarge the window, and the image grows too, but you cannot then
  * reduce the window size again.
  * We get round this by displaying a cairo drawing area inside a 1x1 grid
- * container.
+ * container, suggested by Eric Cecashon on the gtk-list mailing list.
  *
  * Bugs:
  *    -	If you resize the window to 1x1, it goes into a 100% CPU loop. If
