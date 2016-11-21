@@ -20,6 +20,7 @@
  *	you then enlarge the window again you are left with a white area
  *	and it doesn't respond to [x] or Control-Q any more. It sometimes
  *	recovers, but during the paralysis its VM usage goes from 46M to 940M.
+ *	See https://bugzilla.gnome.org/show_bug.cgi?id=80925
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
