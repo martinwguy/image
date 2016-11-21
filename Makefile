@@ -1,9 +1,9 @@
 ALL=	image1-agar image2-agar \
 	image1-efl image2-efl \
 	image1-fltk \
-	image1-iup \
 	image1-gtk2 image2-gtk2 \
 	image1-gtk3 \
+	image1-iup \
 	image1-qt4/image1-qt4 \
 	image1-sdl1 image1-sdl2
 
@@ -35,10 +35,8 @@ image1-gtk3: image1-gtk3.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
 
 image1-iup: image1-iup.c
-	$(CC) $(CFLAGS) $< -o $@ \
-		-I/usr/local/include/iup -I/usr/local/include/im \
-		-liup -liupimglib -lim -lcd -lm \
-		-lfontconfig -lfreetype `pkg-config --libs gtk+-3.0` -lX11
+	$(CC) $(CFLAGS) $< -o $@ -I/usr/local/include/iup -liup -liupim \
+		`pkg-config --libs gtk+-3.0` -lX11
 
 image1-sdl1: image1-sdl1.c
 	@# apt-get install libsdl1.2-dev libsdl-image1.2-dev

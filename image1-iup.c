@@ -9,9 +9,7 @@
  * the application should quit.
  *
  * Bugs:
- *    -	Opens the window 1x1.
- *    -	Doesn't display the image if you enlarge the window,
- *	just a white rectangle.
+ *    -	Doesn't scale the image when you resize the window.
  *
  *	Martin Guy <martinwguy@gmail.com>, November 2016.
  */
@@ -19,8 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iup.h>
-#include <im.h>
-#include <im_image.h>
+#include <iupim.h>
 
 static int quitGUI(Ihandle *self)
 {
@@ -34,43 +31,25 @@ char **argv;
 {
     char *filename = (argc > 1) ? argv[1] : "image.jpg";
     Ihandle *window;
-    Ihandle *canvas;
-    imImage *image;
-    int error;
+    Ihandle *label;
+    Ihandle *image;
 
     IupOpen(&argc, &argv);
-    IupImageLibOpen();
 
-    image = imFileImageLoadBitmap(filename, 0, &error);
-    if (error) {
+    image = IupLoadImage(filename);
+    if (!image) {
 	fputs("Cannot read ", stderr);
 	perror(filename);
 	exit(1);
     }
-    imImageRemoveAlpha(image);
-    if (image->color_space != IM_RGB) {
-	imImage* new = imImageCreateBased(image, -1, -1, IM_RGB, -1);
-	imConvertColorSpace(image, new);
-	imImageDestroy(image);
-	image = new;
-    }
 
-    canvas = IupCanvas(NULL);
-    IupSetAttribute(canvas, "NAME", "CANVAS");
-    IupSetAttribute(canvas, "DIRTY", "NO");
-    imcdCanvasPutImage(canvas, image,
-		       0, 0, image->width, image->height,
-		       0, image->width, 0, image->height);
+    label = IupLabel("");
+    IupSetAttributeHandle(label, "IMAGE", image);
 
-    window = IupDialog((Ihandle *)image);
+    window = IupDialog(label);
     IupSetAttribute(window, "TITLE", "image1-iup");
-    /* Quit if they press Control-Q */
     IupSetCallback(window, "K_cQ", (Icallback) quitGUI);
-
-    IupSetAttribute((Ihandle *)image, "EXPAND", "YES");
-    IupSetAttribute(window, "USERSIZE", NULL);
-
-    IupShowXY(window, IUP_CENTER, IUP_CENTER);
+    IupShow(window);
 
     IupMainLoop();
 
