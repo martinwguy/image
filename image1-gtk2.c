@@ -21,7 +21,7 @@
 
 /* Event callbacks */
 static gboolean keyPress(GtkWidget *widget, gpointer data);
-static gboolean exposeImage(GtkWidget *widget, gpointer data);
+static gboolean exposeImage(GtkWidget *widget, GdkEventExpose *event, gpointer data);
 
 int
 main(int argc, char **argv)
@@ -91,7 +91,7 @@ keyPress(GtkWidget *widget, gpointer data)
 
 /* If the window has been resized, resize the image to it. */
 static gboolean
-exposeImage(GtkWidget *widget, gpointer data)
+exposeImage(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
     GdkPixbuf *sourcePixbuf = data;	/* As read from a file */
     GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
@@ -101,7 +101,7 @@ exposeImage(GtkWidget *widget, gpointer data)
 	g_message("Can't get on-screen pixbuf");
 	return TRUE;
     }
-    /* Recreate thedisplayed image if the image size has changed. */
+    /* Recreate the displayed image if the image size has changed. */
     if (widget->allocation.width != gdk_pixbuf_get_width(imagePixbuf) ||
         widget->allocation.height != gdk_pixbuf_get_height(imagePixbuf)) {
 
