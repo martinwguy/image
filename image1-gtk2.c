@@ -12,6 +12,7 @@
  *    - If you resize the window to minimum size (1x1), GTK goes into a
  *	100% CPU loop for about a minute, during which time it does not
  *	refresh the display, then recovers as mysteriously as it died.
+ *	See https://bugzilla.gnome.org/show_bug.cgi?id=80925
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
