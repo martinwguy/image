@@ -34,9 +34,13 @@ image2-gtk2: image2-gtk2.c
 image1-gtk3: image1-gtk3.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs gtk+-3.0`
 
-image1-iup: image1-iup.c
-	$(CC) $(CFLAGS) $< -o $@ -I/usr/local/include/iup -liup -liupim \
+image1-iup: image1-iup.o
+	@# The "im" library is written in C++ and needs a C++-aware linker.
+	$(CXX) -o $@ $< -liup -liupim -lim -lim_process \
 		`pkg-config --libs gtk+-3.0` -lX11
+
+image1-iup.o: image1-iup.c
+	$(CC) $(CFLAGS) -c $< -I/usr/local/include/iup -I/usr/local/include/im
 
 image1-sdl1: image1-sdl1.c
 	@# apt-get install libsdl1.2-dev libsdl-image1.2-dev
@@ -59,4 +63,4 @@ show: $(ALL)
 	for a in $(ALL); do ./$$a image2.jpg & done
 
 clean:
-	rm $(ALL)
+	rm $(ALL) *.o
