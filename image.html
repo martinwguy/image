@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>C GUI Toolkit Test Drive</TITLE>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY>
+<H1 ALIGN=CENTER>A Test Drive of six C GUI Toolkits</H1>
+<P ALIGN=CENTER>Martin Guy<BR>&lt;martinwguy&#64;gmail.com></P>
+<HR>
+I needed to pick a C GUI Toolkit and, being new to GUI programming,
+thought I'd try implementing a few extremely simple apps in a range
+of them and see which came out shortest and which easiest.
+
+= The Candidates =
+* <A HREF=#AGAR>AGAR</A>: PUC-Rio's in-house one. Easy and pleasant to program, harder to learn as only doc is a reference manual, almost no tutorials or examples. Buggy.
+* <A HREF=#AGAR>EFL: Enlightenment Foundation Libraries. Docs patchy.
+	Simple stuff was easy, anything else is difficult to get right.
+	Fast and robust once it's right.  Portable to mobile devices.
+* <A HREF=#GTK2>GTK2: Long-winded. Buggy.
+* <A HREF=#GTK3>GTK3: Haven't figured out how it use it yet.
+* <A HREF=#QT>QT4 and QT5 are C++.
+* <A HREF=#SDL1>SDL1.2: No Menu/File selector stuff. No built-in image scaler.
+* <A HREF=#SDL2>SDL2: No Menu/File selector stuff.
+
+<H1>Remarks</H1>
+
+The hoops you have to jump through to get these simple apps working
+
+<H2 name=AGAR>AGAR</H2>
+<IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
+     ALT="App window in AGAR">
+Bugs:
+Features:
+<UL>
+ <LI>The menus don't close when you move off them or press Esc.
+
+<H2 name=GTK2>GTK2</H2>
+<IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
+     ALT="App window in GTK2">
+"The Big One". Old and crusty, detailed documentation, examples and wisdom
+are abundant. I banged my head against GTK2 for two or three days before
+succeeding in getting it to work.
+<P>
+THe resized image quality is excellent, the speed acceptable but a little laggy.
+
+<H2 name=GTK3>GTK3</H2>
+<!--<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
+     ALT="App window in GTK3">-->
+"The Even Bigger One". The "deprecated" window-sizing-strategy call that
+we used in GTK2 to be able to shrink the window has now been removed.
+The trick with GTK3 instead is to put the image in a rare kind of
+invisible container.
+<P>
+GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
+the "wotsit tables" bloat out to 900MB of active RAM and it has a 100% CPU
+epileptic fit lasting tens of seconds. The bug was first reported in 2002 and
+in 2020 it will be old enough to be legally responsible for its actions.
+
+<H2 name=EFL>EFL</H2>
+<IMG ALIGN=RIGHT SRC="efl.png" WIDTH= HEIGHT=
+     ALT="App window in EFL">
+My second try was with the one of the most recent toolkits, the Englightenment
+Foundation Library. In the same way that GTK grew out of the GIMP image editor,
+EFL grew out of the Enlightenment window manager/desktop.
+The app should work on Windows, Mac, Linux, Android and iPhone.
+<P>
+To my surprise, despite a dearth of patchy documentation and few examples,
+the first example program was working in a couple of hours.
+To my even greater surprise, getting the second example to work,
+the one with a File-Open/Quit menu bar above the image, took
+days and days and still isn't working properly so I'm not sure what's
+going on there.
+<P>
+The zoomed image is of superb quality (its algorithm looks like it's the same as
+GTK's) and its motion super-smooth.
+
+<H2 name=AGAR>AGAR</H2>
+<IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
+     ALT="App window in AGAR on X">
+A strange and rare GUI toolkit from PUC-Rio. You have to install it from
+source code as it's not packaged in Debian/Ubuntu yet. The documentation
+consists of a reference manual but the code needed to get things done
+turns out to be refreshingly short but on rare occasions it displays the
+image with its top left corner in the center of the window, cause unknown.
+<P>
+The image-resizing speed is acceptable but it uses the sparkly resizing
+alrogithm.
+
+<H2 name=IUP>IUP.2</H2>
+<IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
+     ALT="App window in IUP on the X Window System">
+Another strange and rare GUI toolkit from PUC-Rio or, rather, a collection
+of graphic libraries by different authors that stack to provide a GUI toolkit.
+<P>
+Its image-resizing down-scaler is of rough quality, producing sparkly visible
+artifacts when resizing the image very small, a defect shared with SDL2 and .
+Its image resizer is also slow, managing
+down to three or four window refreshes per second at large image size, goes
+sparkly at high reduction factors and is even more prone than GTK to going into
+paxoxysms of catatonic 100% CPU usage for tens of seconds at high image
+reductions.
+
+<H2 name=SDL1>SDL1.2</H2>
+<IMG ALIGN=RIGHT SRC="sdl1.png" WIDTH= HEIGHT=
+     ALT="App window in SDL 1.2">
+SDL isn't a GUI toolkit; it's a drawing library. For the simple test program
+it has the smallest code, the smallest executable and the fastest/smoothest
+image scaling. If you want anything more, you have to draw everything yourself
+or run it from keystrokes. SDL1 doesn't have an image scaler, so we use
+the swscaler library, which results slow and laggy.
+
+<H2 name=SDL2>SDL2</H2>
+<IMG ALIGN=RIGHT SRC="sdl2.png" WIDTH= HEIGHT=
+     ALT="App window in SDL 2">
+As above, except that it now has its own image scaler. This is the
+only implementation of image example program 1 to be fast and have no bugs
+though its image scaler goes sparkly at high reduction factors.
+
+<H1>Executable sizes</H1>
+<PRE>
+   === Our compiled code ===                =When running=
+   ---------in bytes--------                -in kilobytes-
+   text   data    bss  total   filename       VSIZ     RSS
+   3081    448      8   3537   image1-agar   52212   20732
+   3496    524     12   4032   image1-efl    35540   16480
+   3857    480      4   4341   image1-gtk2   23712   13080
+   4124	   484	    4	4612   image1-gtk3   68400   23068
+   3791	   516	   28	4335   image1-iup    79444   34076
+   3007    356      8   3371   image1-sdl1   19452    8980
+   3103    352      8   3463   image1-sdl2   46780   19340
+   5289    512     16   5817   image2-agar   52260   20864
+   5360    576     24   5960   image2-efl    36912   17612
+   6452    580     24   7056   image2-gtk2   25172   15288
+</PRE>
+<TT>text</TT> is the size of our code, compiled, reflecting how long-winded it was for us to explain to the library what it should do,<BR>
+<TT>data</TT> and <TT>bss</TT> are the initialised and zeroed data we needed,<BR>
+<TT>total</TT> the sum of these three.<BR>
+<TT>VSIZ</TT> includes both ours and the library's compiled code and data and<BR>
+<TT>RSS</TT> reflects how much of that is in RAM.
+<HR>
+Martin Guy &lt;martinwguy&#64;gmail.com>, November 2016.
+</BODY>
+</HTML>
