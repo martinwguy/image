@@ -10,6 +10,7 @@
  *
  * Bugs:
  *    - The image is not scaled to the window: it is centered or has scrollbars.
+ *    - Seems to have an extra 1-pixel white border around the image.
  *
  *	Martin Guy <martinwguy@gmail.com>, November 2016.
  */
@@ -25,7 +26,6 @@ int main(int argc, char *argv[])
     QGraphicsScene scene;
     QGraphicsView view(&scene);
     QGraphicsPixmapItem item(QPixmap ((argc > 1) ? argv[1] : "image.jpg"));
-
     scene.addItem(&item);
     view.show();
     return a.exec();
