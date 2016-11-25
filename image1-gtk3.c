@@ -102,9 +102,8 @@ keyPress(GtkWidget *widget, gpointer data)
 	return TRUE;
 }
 
-/* If the window has been resized, that resizes the scrolledwindow,
- * and we scale the image to the dimensions of the scrolledwindow so that
- * the scrollbars disappear again. Yuk! */
+/* If the window has been resized, that resizes the drawing area
+ * so we scale the image to that. */
 static gboolean
 draw_picture(GtkWidget *drawing_area, cairo_t *cr, gpointer data)
 {
