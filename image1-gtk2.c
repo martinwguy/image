@@ -8,11 +8,7 @@
  * If they hit Control-Q or poke the [X] icon in the window's titlebar,
  * the application should quit.
  *
- * Bugs:
- *    - If you resize the window to minimum size (1x1), GTK goes into a
- *	100% CPU loop for about a minute, during which time it does not
- *	refresh the display, then recovers as mysteriously as it died.
- *	See https://bugzilla.gnome.org/show_bug.cgi?id=80925
+ * Bugs: None.
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */
@@ -31,7 +27,6 @@ main(int argc, char **argv)
     GdkPixbuf *sourcePixbuf = NULL;	/* As read from a file */
     GtkWidget *image;		/* As displayed on the screen */
     char *filename =  (argc > 1) ? argv[1] : "image.jpg";
-
     gtk_init(&argc, &argv);
 
     /* Make pixbuf, then make image from pixbuf because
@@ -97,19 +92,67 @@ exposeImage(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
     GdkPixbuf *sourcePixbuf = data;	/* As read from a file */
     GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
+    GdkPixbuf *readFrom;	/* the image we need to compress */
 
     imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (imagePixbuf == NULL) {
 	g_message("Can't get on-screen pixbuf");
 	return TRUE;
     }
-    /* Recreate the displayed image if the image size has changed. */
-    if (widget->allocation.width != gdk_pixbuf_get_width(imagePixbuf) ||
-        widget->allocation.height != gdk_pixbuf_get_height(imagePixbuf)) {
+    readFrom = sourcePixbuf;
 
+    /* Recreate the displayed image if the image size has changed. */
+
+    /* Eliminate repeated calls to the same size */
+    if (widget->allocation.width == gdk_pixbuf_get_width(imagePixbuf) &&
+        widget->allocation.height == gdk_pixbuf_get_height(imagePixbuf))
+	    return FALSE;
+
+    /*
+     * GTK2 and 3 have a bug in the image scaler whereby, when downscaling
+     * by a large factor, it creates a humungous image kernel which makes it
+     * bloat to 900MB active RAM and 100% CPU usage for tens of seconds.
+     * See https://bugzilla.gnome.org/show_bug.cgi?id=80925
+     * Work round this by handling pathological cases separately, of which the
+     * worst (and the easiest) is when downscaling to width of height of 1.
+     * For the 1x1 case, do width reduction first as that is the more
+     * VM-friendly.
+     */
+    /* For reduction to a width of 1 */
+    if (widget->allocation.width != gdk_pixbuf_get_width(readFrom) &&
+	widget->allocation.width == 1) {
 	gtk_image_set_from_pixbuf(
 	    GTK_IMAGE(widget),
-	    gdk_pixbuf_scale_simple(sourcePixbuf,
+	    gdk_pixbuf_scale_simple(readFrom,
+				    widget->allocation.width,
+				    gdk_pixbuf_get_height(readFrom),
+				    GDK_INTERP_BILINEAR)
+	);
+        g_object_unref(imagePixbuf); /* Free the old one */
+        imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
+	readFrom = imagePixbuf;
+    }
+    /* and for reduction to a height of 1 */
+    if (widget->allocation.height != gdk_pixbuf_get_height(readFrom) &&
+	widget->allocation.height == 1) {
+	gtk_image_set_from_pixbuf(
+	    GTK_IMAGE(widget),
+	    gdk_pixbuf_scale_simple(readFrom,
+				    gdk_pixbuf_get_width(readFrom),
+				    widget->allocation.height,
+				    GDK_INTERP_BILINEAR)
+	);
+        g_object_unref(imagePixbuf); /* Free the old one */
+        imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
+	readFrom = imagePixbuf;
+    }
+
+    /* Now the real thing */
+    if (widget->allocation.width != gdk_pixbuf_get_width(readFrom) ||
+        widget->allocation.height != gdk_pixbuf_get_height(readFrom)) {
+	gtk_image_set_from_pixbuf(
+	    GTK_IMAGE(widget),
+	    gdk_pixbuf_scale_simple(readFrom,
 				    widget->allocation.width,
 				    widget->allocation.height,
 				    GDK_INTERP_BILINEAR)
