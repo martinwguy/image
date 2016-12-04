@@ -9,6 +9,8 @@ ALL=	image1-agar image2-agar \
 
 all: $(ALL)
 
+CFLAGS=-g -O2
+
 image1-agar: image1-agar.c
 	$(CC) $(CFLAGS) $< -o $@ `agar-config --cflags --libs`
 
@@ -63,4 +65,4 @@ show: $(ALL)
 	for a in $(ALL); do ./$$a image2.jpg & done
 
 clean:
-	rm $(ALL) *.o
+	rm -f $(ALL) *.o
