@@ -15,8 +15,7 @@ of them and see which came out shortest and which easiest.
 = The Candidates =
 * <A HREF=#AGAR>AGAR</A>: PUC-Rio's in-house one. Easy and pleasant to program, harder to learn as only doc is a reference manual, almost no tutorials or examples. Buggy.
 * <A HREF=#AGAR>EFL: Enlightenment Foundation Libraries. Docs patchy.
-	Simple stuff was easy, anything else is difficult to get right.
-	Fast and robust once it's right.  Portable to mobile devices.
+	Simple stuff was easy, anything else is difficult to get right.  Fast and robust once it's right.  Portable to mobile devices.
 * <A HREF=#GTK2>GTK2: Long-winded. Buggy.
 * <A HREF=#GTK3>GTK3: Haven't figured out how it use it yet.
 * <A HREF=#QT>QT4 and QT5 are C++.
@@ -27,35 +26,29 @@ of them and see which came out shortest and which easiest.
 
 The hoops you have to jump through to get these simple apps working
 
+
 <H2 name=AGAR>AGAR</H2>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
-     ALT="App window in AGAR">
-Bugs:
-Features:
+     ALT="App window in AGAR on X">
+A strange and rare GUI toolkit from PUC-Rio. You have to install it from
+source code as it's not packaged in Debian/Ubuntu yet. The documentation
+consists of a reference manual but the code needed to get things done
+turns out to be refreshingly short. It compiles for Window, Mac and Linux
+and has libraries for vector graphic, math with optimised matrix and geometry,
+audio output and threading (mutexes, object locking and wait/signal).
+<P>
+Its audio capabilities are limited to reading files into RAM with libsndfile
+and spitting a buffer of samples at the audio output device.
+<P>
+Bugs/Features:
 <UL>
  <LI>The menus don't close when you move off them or press Esc.
-
-<H2 name=GTK2>GTK2</H2>
-<IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
-     ALT="App window in GTK2">
-"The Big One". Old and crusty, detailed documentation, examples and wisdom
-are abundant. I banged my head against GTK2 for two or three days before
-succeeding in getting it to work.
-<P>
-THe resized image quality is excellent, the speed acceptable but a little laggy.
-
-<H2 name=GTK3>GTK3</H2>
-<!--<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
-     ALT="App window in GTK3">-->
-"The Even Bigger One". The "deprecated" window-sizing-strategy call that
-we used in GTK2 to be able to shrink the window has now been removed.
-The trick with GTK3 instead is to put the image in a rare kind of
-invisible container.
-<P>
-GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
-the "wotsit tables" bloat out to 900MB of active RAM and it has a 100% CPU
-epileptic fit lasting tens of seconds. The bug was first reported in 2002 and
-in 2020 it will be old enough to be legally responsible for its actions.
+ <LI>on rare occasions it displays the image with its top left corner
+in the center of the window.
+ <LI>The image-resizing speed is acceptable but it uses the sparkly resizing
+algorithm.
+ <LI>Its sound-playing interface is a joke, good only for going "boing".
+</UL>
 
 <H2 name=EFL>EFL</H2>
 <IMG ALIGN=RIGHT SRC="efl.png" WIDTH= HEIGHT=
@@ -70,22 +63,39 @@ the first example program was working in a couple of hours.
 To my even greater surprise, getting the second example to work,
 the one with a File-Open/Quit menu bar above the image, took
 days and days and still isn't working properly so I'm not sure what's
-going on there.
+going on.
 <P>
-The zoomed image is of superb quality (its algorithm looks like it's the same as
-GTK's) and its motion super-smooth.
+The zoomed image is of superb quality (it looks like its algorithm is
+the same as GTK's), zooming smoothly as the window is resized.
+<P>
+EFL has audio libraries:
+<UL>
+ <LI>"Emotion", wrapping gstreamer, xine and vlc for audio/video playback, and
+ <LI>Ecore_Audio "Convenience Audio API" does sndfile input and pulseaudio
+	output.  Documentation/examples are almost nonexistent.
+ <LI>"ecore" itself, providing timers, IPC and an idle callback.
+</UL>
 
-<H2 name=AGAR>AGAR</H2>
-<IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
-     ALT="App window in AGAR on X">
-A strange and rare GUI toolkit from PUC-Rio. You have to install it from
-source code as it's not packaged in Debian/Ubuntu yet. The documentation
-consists of a reference manual but the code needed to get things done
-turns out to be refreshingly short but on rare occasions it displays the
-image with its top left corner in the center of the window, cause unknown.
+<H2 name=GTK2>GTK2</H2>
+<IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
+     ALT="App window in GTK2">
+"The Big One". Old and crusty, detailed documentation, examples and wisdom
+are abundant. I banged my head against GTK2 for two or three days before
+succeeding in getting it to work.
 <P>
-The image-resizing speed is acceptable but it uses the sparkly resizing
-alrogithm.
+The resized image quality is excellent, the speed acceptable but a little laggy.
+<H2 name=GTK3>GTK3</H2>
+<!--<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
+     ALT="App window in GTK3">-->
+"The Even Bigger One". The "deprecated" window-sizing-strategy call that
+we used in GTK2 to be able to shrink the window has now been removed.
+The trick with GTK3 instead is to put the image in a rare kind of
+invisible container.
+<P>
+GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
+the "wotsit tables" bloat out to 900MB of active RAM and it has a 100% CPU
+epileptic fit lasting tens of seconds. The bug was first reported in 2002 and
+in 2020 it will be old enough to be legally responsible for its actions.
 
 <H2 name=IUP>IUP.2</H2>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
