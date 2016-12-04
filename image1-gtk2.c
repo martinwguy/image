@@ -86,6 +86,8 @@ keyPress(GtkWidget *widget, gpointer data)
 	return TRUE;
 }
 
+static int int_sqrt(int n);
+
 /* If the window has been resized, resize the image to it. */
 static gboolean
 exposeImage(GtkWidget *widget, GdkEventExpose *event, gpointer data)
@@ -93,6 +95,8 @@ exposeImage(GtkWidget *widget, GdkEventExpose *event, gpointer data)
     GdkPixbuf *sourcePixbuf = data;	/* As read from a file */
     GdkPixbuf *imagePixbuf;	/* pixbuf of the on-screen image */
     GdkPixbuf *readFrom;	/* the image we need to compress */
+    guint32 from_width, from_height;	/* Size of readFrom */
+    guint32 to_width, to_height;	/* Target size */
 
     imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
     if (imagePixbuf == NULL) {
@@ -100,65 +104,72 @@ exposeImage(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 	return TRUE;
     }
     readFrom = sourcePixbuf;
+    from_width = gdk_pixbuf_get_width(readFrom);
+    from_height = gdk_pixbuf_get_height(readFrom);
+    to_width = widget->allocation.width;
+    to_height = widget->allocation.height;
 
     /* Recreate the displayed image if the image size has changed. */
 
     /* Eliminate repeated calls to the same size */
-    if (widget->allocation.width == gdk_pixbuf_get_width(imagePixbuf) &&
-        widget->allocation.height == gdk_pixbuf_get_height(imagePixbuf))
+    if (to_width == from_width && to_height == from_height)
 	    return FALSE;
 
+#if 0
     /*
      * GTK2 and 3 have a bug in the image scaler whereby, when downscaling
      * by a large factor, it creates a humungous image kernel which makes it
      * bloat to 900MB active RAM and 100% CPU usage for tens of seconds.
      * See https://bugzilla.gnome.org/show_bug.cgi?id=80925
-     * Work round this by handling pathological cases separately, of which the
-     * worst (and the easiest) is when downscaling to width of height of 1.
-     * For the 1x1 case, do width reduction first as that is the more
-     * VM-friendly.
+     * Work round this by detecting pathological reductions and doing them
+     * in two steps.
      */
-    /* For reduction to a width of 1 */
-    if (widget->allocation.width != gdk_pixbuf_get_width(readFrom) &&
-	widget->allocation.width == 1) {
-	gtk_image_set_from_pixbuf(
-	    GTK_IMAGE(widget),
-	    gdk_pixbuf_scale_simple(readFrom,
-				    widget->allocation.width,
-				    gdk_pixbuf_get_height(readFrom),
-				    GDK_INTERP_BILINEAR)
-	);
-        g_object_unref(imagePixbuf); /* Free the old one */
-        imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
-	readFrom = imagePixbuf;
-    }
-    /* and for reduction to a height of 1 */
-    if (widget->allocation.height != gdk_pixbuf_get_height(readFrom) &&
-	widget->allocation.height == 1) {
-	gtk_image_set_from_pixbuf(
-	    GTK_IMAGE(widget),
-	    gdk_pixbuf_scale_simple(readFrom,
-				    gdk_pixbuf_get_width(readFrom),
-				    widget->allocation.height,
-				    GDK_INTERP_BILINEAR)
-	);
-        g_object_unref(imagePixbuf); /* Free the old one */
-        imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
-	readFrom = imagePixbuf;
-    }
+    {
+	int area_ratio = (from_width * from_height) / (to_width  * to_height);
+	int x_ratio = from_width / to_width;
+	int y_ratio = from_height / to_height;
+	int temp_width, temp_height;
 
-    /* Now the real thing */
-    if (widget->allocation.width != gdk_pixbuf_get_width(readFrom) ||
-        widget->allocation.height != gdk_pixbuf_get_height(readFrom)) {
+        if (area_ratio >= 1600) {
+	    /* Do two downscales, each of the same ratio */
+	    temp_width = int_sqrt(from_width * to_width);
+	    temp_height = int_sqrt(from_height * to_height);
+	} else if (x_ratio >= 256) {
+	    temp_width = int_sqrt(from_width * to_width);
+	    temp_height = from_height;
+	} else if (y_ratio >= 256) {
+	    temp_width = from_width;
+	    temp_height = int_sqrt(from_height * to_height);
+	 } else
+	    goto one_step;
+
 	gtk_image_set_from_pixbuf(
 	    GTK_IMAGE(widget),
-	    gdk_pixbuf_scale_simple(readFrom,
-				    widget->allocation.width,
-				    widget->allocation.height,
+	    gdk_pixbuf_scale_simple(readFrom, temp_width, temp_height,
 				    GDK_INTERP_BILINEAR)
 	);
-        g_object_unref(imagePixbuf); /* Free the old one */
+	g_object_unref(imagePixbuf); /* Free the old one */
+	readFrom = imagePixbuf = gtk_image_get_pixbuf(GTK_IMAGE(widget));
+	from_width = temp_width; from_height = temp_height;
     }
+#endif
+
+one_step:
+    /* Now the real thing */
+    gtk_image_set_from_pixbuf(
+        GTK_IMAGE(widget),
+        gdk_pixbuf_scale_simple(readFrom, to_width, to_height,
+				GDK_INTERP_BILINEAR)
+    );
+    g_object_unref(imagePixbuf); /* Free the old one */
 
     return FALSE;
+}
+
+static int
+int_sqrt (int n)
+{
+    int a;
+    for (a=0; n >= (2*a)+1; n -= (2*a++)+1);
+    return a;
 }
