@@ -43,8 +43,7 @@ main(int argc, char **argv)
 
     gtk_init(&argc, &argv);
 
-    /* Make pixbuf, then make image from pixbuf because
-     * gtk_image_new_from_file() doesn't flag errors */
+    /* Read source image from file */
     {
 	GError *error = NULL;
 	pixbuf = gdk_pixbuf_new_from_file(filename, &error);
@@ -102,17 +101,58 @@ keyPress(GtkWidget *widget, gpointer data)
 	return TRUE;
 }
 
-/* If the window has been resized, that resizes the drawing area
- * so we scale the image to that. */
+/* When the window is resized, that resizes the drawing area
+ * so we scale the image to that.
+ * Paramater "widget" is the drawing_area. */
 static gboolean
 draw_picture(GtkWidget *drawing_area, cairo_t *cr, gpointer data)
 {
-    GdkPixbuf *pixbuf = data;	/* As read from a file */
+    GdkPixbuf *source = data;	/* As read from a file */
     GdkPixbuf *image;		/* Scaled to the window */
     gint width = gtk_widget_get_allocated_width(drawing_area);
     gint height = gtk_widget_get_allocated_height(drawing_area);
+    GdkPixbuf *readFrom;	/* the image that needs scaling */
 
-    image = gdk_pixbuf_scale_simple(pixbuf, width, height, GDK_INTERP_BILINEAR);
+    readFrom = source;
+
+    /* Recreate the displayed image if the image size has changed. */
+
+    /*
+     * GTK2 and 3 have a bug in the image scaler whereby, when downscaling
+     * by a large factor, it creates a humungous image kernel which makes it
+     * bloat to 900MB active RAM and 100% CPU usage for tens of seconds.
+     * See https://bugzilla.gnome.org/show_bug.cgi?id=80925
+     * Work round this by handling pathological cases separately, of which the
+     * worst (and the easiest) is when downscaling to width of height of 1.
+     * For the 1x1 case, do width reduction first as that is the more
+     * VM-friendly.
+     */
+    /* For reduction to a width of 1 */
+    if (width != gdk_pixbuf_get_width(readFrom) && width == 1) {
+	image = gdk_pixbuf_scale_simple(readFrom,
+				    width,
+				    gdk_pixbuf_get_height(readFrom),
+				    GDK_INTERP_BILINEAR);
+	readFrom = image;
+    }
+    /* and for reduction to a height of 1 */
+    if (height != gdk_pixbuf_get_height(readFrom) &&
+	height == 1) {
+	image = gdk_pixbuf_scale_simple(readFrom,
+				    gdk_pixbuf_get_width(readFrom),
+				    height,
+				    GDK_INTERP_BILINEAR);
+	readFrom = image;
+    }
+
+    /* Now the real thing */
+    if (width != gdk_pixbuf_get_width(readFrom) ||
+        height != gdk_pixbuf_get_height(readFrom)) {
+	image = gdk_pixbuf_scale_simple(readFrom,
+				    width, height,
+				    GDK_INTERP_BILINEAR);
+    }
+
     gdk_cairo_set_source_pixbuf(cr, image, 0, 0);
     cairo_paint(cr);
     g_object_unref(image);
