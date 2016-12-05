@@ -1,5 +1,5 @@
 /*
- * image2-efl.c: GUI toolkit test piece to display an image file.
+ * image2-elm.c: GUI toolkit test piece to display an image file.
  *
  * An optional image file is given as a command-line argument and, if given,
  * The window should open to exactly fit the image at one-pixel-per-pixel size.
@@ -44,8 +44,8 @@ elm_main(int argc, char **argv)
  
     elm_policy_set(ELM_POLICY_QUIT, ELM_POLICY_QUIT_LAST_WINDOW_CLOSED);
  
-    window = elm_win_add(NULL, "image", ELM_WIN_BASIC);
-    elm_win_title_set(window, "image2-efl");
+    window = elm_win_add(NULL, "image2-elm", ELM_WIN_BASIC);
+    elm_win_title_set(window, "image2-elm");
     elm_win_autodel_set(window, EINA_TRUE);
     evas_object_event_callback_add(window, EVAS_CALLBACK_KEY_DOWN, keyDown, NULL);
 

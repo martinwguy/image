@@ -1,5 +1,5 @@
 ALL=	image1-agar image2-agar \
-	image1-efl image2-efl \
+	image1-elm image2-elm \
 	image1-fltk \
 	image1-gtk2 image2-gtk2 \
 	image1-gtk3 \
@@ -17,10 +17,10 @@ image1-agar: image1-agar.c
 image2-agar: image2-agar.c
 	$(CC) $(CFLAGS) $< -o $@ `agar-config --cflags --libs`
 
-image1-efl: image1-efl.c
+image1-elm: image1-elm.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs elementary`
 
-image2-efl: image2-efl.c
+image2-elm: image2-elm.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs elementary`
 
 image1-fltk: image1-fltk.c
