@@ -24,9 +24,6 @@ of them and see which came out shortest and which easiest.
 
 <H1>Remarks</H1>
 
-The hoops you have to jump through to get these simple apps working
-
-
 <H2 name=AGAR>AGAR</H2>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
      ALT="App window in AGAR on X">
@@ -68,13 +65,12 @@ going on.
 The zoomed image is of superb quality (it looks like its algorithm is
 the same as GTK's), zooming smoothly as the window is resized.
 <P>
-EFL has audio libraries:
-<UL>
- <LI>"Emotion", wrapping gstreamer, xine and vlc for audio/video playback, and
- <LI>Ecore_Audio "Convenience Audio API" does sndfile input and pulseaudio
-	output.  Documentation/examples are almost nonexistent.
- <LI>"ecore" itself, providing timers, IPC and an idle callback.
-</UL>
+EFL's base-level audio library, Ecore_audio, is too limited.
+"Emotion" instead wrapping gstreamer, xine and vlc for audio/video playback,
+and has the "I've just finished playing the last buffer" events we need.
+Documentation/examples are almost nonexistent; you have to read the source.
+The only availableexample sudio-playing program needs e18, but Debian/Ubuntu
+are still at e17.
 
 <H2 name=GTK2>GTK2</H2>
 <IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
@@ -94,8 +90,9 @@ invisible container.
 <P>
 GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
 the "wotsit tables" bloat out to 900MB of active RAM and it has a 100% CPU
-epileptic fit lasting tens of seconds. The bug was first reported in 2002 and
-in 2020 it will be old enough to be legally responsible for its actions.
+epileptic fit lasting tens of seconds. The code here has workarounds for the
+worst cases and a better workaround should appear from upstream sooner or later.
+See https://bugzilla.gnome.org/show_bug.cgi?id=80925
 
 <H2 name=IUP>IUP.2</H2>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
@@ -110,6 +107,8 @@ down to three or four window refreshes per second at large image size, goes
 sparkly at high reduction factors and is even more prone than GTK to going into
 paxoxysms of catatonic 100% CPU usage for tens of seconds at high image
 reductions.
+<P>
+IUP doesn't have an audio layer of its own, so choose!
 
 <H2 name=SDL1>SDL1.2</H2>
 <IMG ALIGN=RIGHT SRC="sdl1.png" WIDTH= HEIGHT=
