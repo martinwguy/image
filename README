@@ -1,43 +1,19 @@
-After 30 years I'm looking to write my second GUI program. The first one was
-for Windows 3.1, and it just put an aphorism in a box. That was enough of GUI
-toolkits to last me 30 years. I never strayed from the command line again!
+Here is the same simple image file viewer written in ten C GUI toolkits:
+AGAR, Enlightenment's ELM and Ecore_Evas interfaces, GTK2 and 3, FLTK,
+IUP, QT4, SDL1 and SDL2.
 
-However, a spectrogram zoomer is a bit hard to do text-only. I've got as far as
-spitting out PNGs and scrolling and zooming through them with the GIMP but 
-changing the calculation parameters or the colour map means going out, re-doing
-the spectrogram, back into the GIMP and so on. It's doesn't really cut the
-mustard. So here I am in 2016 looking to choose a GUI toolkits.
+The first example program is given the image file as a command-line argument
+with a default of image.jpg.
+The window should open to exactly fit the image at one-pixel-per-pixel size.
+The user can then resize the window and the image scales to fit the window
+without keeping its aspect ratio.
+If they hit Control-Q or poke the [X] icon in the window's titlebar,
+the application should quit.
 
-They have to be
-- as cross-platform as possible. Linux, Windows and Mac of course, Android and
-  iPhone would be nice so that the great unwashed can pay for it.
-- Not mandating C++. I'm not using C++. C is OK. Other languages may be OK,
-  depending on the language, but I need to to the nitty gritty in C to use
-  FFTW or equivalent. I already have 
+A second example, image2, has a File-Open/Quit menu bar above the image.
 
-What I want to end up with is one of these http://wikidelia.net/wiki/Spectrogram
-and to be able to 
-- zoom the frequency range with the interesting stuff in it as big as possible
-- zoom the time axis to spread the notes out, giving me a view long enough to
-  see whole musical phrases but also spacing the notes apart enough to
-  distinguish them
-- change the FFT frequency, to tradeoff between time resolution and frequency
-  resolution of the underlying graph. This implies recalulating the whole
-  visible area, which will take seconds.
-- change the colour map's dynamic range and maybe its top/base value.
-- optionally overlay the 5+5 staff lines of conventional manuscript, the black
-  and white notes of the piano, maybe the 6 open guitar chords and first 4 frets
-- overlay a time grid being able to adjust two reference points and the number
-  of beats between them. The beat step needs to be to sub-pixel accuracy.
-- play the piece, scrolling the image smoothly with a green vertical line 
-  half way across the screen at the current play position.
-- save the current view or the whole piece at current settings as a JPG/PNG
-  (optionally including annotations, scales and grids) 
-Book 2 stuff:
-- scribble notes on the graph (another layer)
-
-AGAR:	On Debian/Ubuntu Have to install from source.
-	There only seems to be a reference manual, no tutorials or examples.
+AGAR:	On Debian/Ubuntu you have to install it from the source code.
+	There only seems to be a reference manual.
 	The few random "tutorials" posted on the web in 2015 are in non-working
 	web containers giving just indices of directory contents and consist
 	of Markdown files in *.htm files.
@@ -50,8 +26,17 @@ AGAR:	On Debian/Ubuntu Have to install from source.
 	It has audio support and its thread support may be useful for
 	calculang FFTs in the background.
 
+ELM:	The Enlightenment Foundation Library. Despite the extremely patchy
+	documentation and rndo selection of code examples, image1 was working
+	in under an hour. image2, adding a menu bar above the image, took days.
+	The result is fast and good quality and the code it needs is the
+	shortest by far.
+
+EVAS:	A lower level of the Enlightenment Foundation library.
+	Doesn't work properly yet.
+
 GTK2:	Big and old, lots of documentation, tutorials and code examples on the
-	web. Should be stable and complete but risks lack of maintenance.
+	web. Should be stable, complete and well-maintained.
 	It took me two days to get image1 working. You have rescale the image
 	explicitly at every window resize in a callback by calling one of its
 	functions to do this for you.
@@ -60,19 +45,8 @@ GTK2:	Big and old, lots of documentation, tutorials and code examples on the
 	being prodded, as mysteriously as it went into paralysis.  I see that
 	one of the simple open source GTK image viewers in Debian has exactly
 	the same bug.
-	image2 also works in GTK2 except that you can't shrink the window to
-	display the image smaller than its original size. If I
-	remove the initial window size hint, it opens it at 1x1. I haven't
-	found a combination of calls to get the desired effect, having tried
-	quite a few.
 
-GTK3:	Had to jump through strange hoops to get it to work.
-
-ELM:	The Enlightenment Foundation Library. Despite the extremely patchy
-	documentation and rndo selection of code examples, image1 was working
-	in under an hour. image2, adding a menu bar above the image, took days.
-
-EVAS:	A lower level of the Enlightenment Foundation library.
+GTK3:	Similar. Had to jump through strange hoops to get it to work.
 
 FLTK:	An attempted implementation, not finished yet.
 
