@@ -1,5 +1,6 @@
 ALL=	image1-agar image2-agar \
 	image1-elm image2-elm \
+	image1-evas \
 	image1-fltk \
 	image1-gtk2 image2-gtk2 \
 	image1-gtk3 \
@@ -22,6 +23,9 @@ image1-elm: image1-elm.c
 
 image2-elm: image2-elm.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs elementary`
+
+image1-evas: image1-evas.c
+	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs evas ecore ecore-evas eo`
 
 image1-fltk: image1-fltk.c
 	$(CXX) $(CFLAGS) $< -o $@ `fltk-config --cflags --libs` \
