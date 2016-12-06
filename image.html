@@ -12,14 +12,29 @@ I needed to pick a C GUI Toolkit and, being new to GUI programming,
 thought I'd try implementing a few extremely simple apps in a range
 of them and see which came out shortest and which easiest.
 
-= The Candidates =
-* <A HREF=#AGAR>AGAR</A>: PUC-Rio's in-house one. Easy and pleasant to program, harder to learn as only doc is a reference manual, almost no tutorials or examples. Buggy.
-* <A HREF=#AGAR>EFL: Enlightenment Foundation Libraries. Docs patchy.
-	Simple stuff was easy, anything else is difficult to get right.  Fast and robust once it's right.  Portable to mobile devices.
+<H2>Primacies</H2>
+<UL>
+ <LI>Shortest code length anong the fully-working ones:
+     ELM at 1800 bytes followed by AGAR and SDL2 at 2600 and 2700.
+ <LI>Fastest image-zooming rate: SDL2 followed by ELM.
+</UL>
+
+<H2>The Candidates</H2>
+* <A HREF=#AGAR>AGAR</A>: PUC-Rio's in-house one. Easy and pleasant to program.
+Hard to learn as the only doc is a reference manual; almost no tutorials or
+examples. Our code to make it work is short (2633 bytes). Buggy.
+* <A HREF=#ELM>ELM: "Elementary" from the Enlightenment Foundation Libraries.
+Docs patchy.  Simple stuff was easy, anything else is difficult to get right. 
+Fast and robust once it's right.  Portable to mobile devices.
+* <A HREF=#EVAS>"Ecore_Evas" from the Enlightenment Foundation Libraries,
+a lower-level interface. Not working yet.
+* <A HREF=#FLTK>FLTK: Not implemented yet.
 * <A HREF=#GTK2>GTK2: Long-winded. Buggy.
-* <A HREF=#GTK3>GTK3: Haven't figured out how it use it yet.
-* <A HREF=#QT>QT4 and QT5 are C++.
-* <A HREF=#SDL1>SDL1.2: No Menu/File selector stuff. No built-in image scaler.
+* <A HREF=#GTK3>GTK3: I had to jump through strange hoops to get it to work.
+* <A HREF=#IUP>IUP: Another one from PUC-Rio.
+* <A HREF=#QT>In C++. Short. Not fully working yet.
+* <A HREF=#SDL1>SDL1.2: No Menu/File selector stuff. No built-in image scaler
+so we use libswscaler.
 * <A HREF=#SDL2>SDL2: No Menu/File selector stuff.
 
 <H1>Remarks</H1>
