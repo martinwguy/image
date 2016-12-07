@@ -14,7 +14,7 @@ of them and see which came out shortest and which easiest.
 
 <H2>Primacies</H2>
 <UL>
- <LI>Shortest code length anong the fully-working ones:
+ <LI>Shortest code length, of the ones that work:
      ELM at 1800 bytes followed by AGAR and SDL2 at 2600 and 2700.
  <LI>Fastest image-zooming rate: SDL2 followed by ELM.
 </UL>
@@ -30,21 +30,30 @@ consists of a reference manual but the code needed to get things done
 turns out to be refreshingly short. It compiles for Windows, Mac and Linux
 and has libraries for vector graphics, math with optimised matrix and geometry,
 audio output and threading (mutexes, object locking and wait/signal).
-On Debian/Ubuntu you need to install it from the source code. Buggy.
+On Debian/Ubuntu you need to install it from the source code.
 <P>
-Its audio capabilities are limited to reading files into RAM with libsndfile
-and spitting a buffer of samples at the audio output device.
+Its audio capabilities are limited to reading files into RAM with libsndfile and
+spitting a buffer of samples at the audio output device, OK for going "boing".
 <P>
 Bugs/Features:
 <UL>
  <LI>The menus don't close when you move off them or press Esc.
- <LI>on rare occasions it displays the image with its top left corner
+ <LI>On rare occasions it displays the image with its top left corner
 in the center of the window.
  <LI>The image-resizing speed is acceptable but it uses a poor resizing
 algorithm.
+ <LI>The image is sometimes displayed skewed by 34 or 45 degrees or in greyscale.
+ <LI>See the top of image-agar.c for even more bugs in AGAR.
+     Since reporting some of these bugs weeks ago there has been no response
+     or activity from its maintainer.
  <LI>Its sound-playing interface is a joke, good only for going "boing".
 </UL>
+Conclusion: Buggy abandonware.
 
+<H2 name=ELM>ELM</H2>
+<IMG ALIGN=RIGHT SRC="elm.png" WIDTH= HEIGHT=
+     ALT="App window in ELM on X">
+The "Elementary" GUI toolkit of the Enlightenment Foundation Libraries.
 <P>
 Despite bug holes in the documentation and few examples,
 the first example program was working in a couple of hours.
@@ -55,35 +64,45 @@ The zoomed image is of superb quality (it looks like its algorithm is
 the same as GTK's), zooming smoothly as the window is resized.
 <P>
 EFL's base-level audio library, Ecore_audio, is too limited.
-"Emotion" instead wrapping gstreamer, xine and vlc for audio/video playback,
-and has the "I've just finished playing the last buffer" events we need.
+"Emotion" instead wraps gstreamer, xine and vlc for audio/video playback
+and even has the "I've just finished playing the last buffer" events we need.
 Documentation/examples are almost nonexistent; you have to read the source.
-The only availableexample sudio-playing program needs e18, but Debian/Ubuntu
+The only available example audio-playing program needs e18, but Debian/Ubuntu
 are still at e17.
+<P>
+Conclusion: An adolscent, as software goes: jolly clever, modern and pretty
+but immature and difficult to live with.  It is set to become the
+No.3 cellphone "Operating System" after iOS and Android, thanks to Tizen.
+
+<H2 name=EVAS>EVAS</H2>
+<IMG ALIGN=RIGHT SRC="evas.png" WIDTH= HEIGHT=
+     ALT="App window in Ecore_Evas on X">
+The "Ecore_Evas" component of the Enlightenment Foundation Libraries,
+a lower-level part of EFL giving just a drawing canvas and no widgets.
+<P>
+Not working yet.
 
 <H2 name=FLTK>FLTK</H2>
 Not implemented yet.
 
-* <A HREF=#GTK2>GTK2: Long-winded. Buggy.
-* <A HREF=#GTK3>GTK3: Similar. You have to jump through strange hoops
-to make it work.
-
 <H2 name=GTK2>GTK2</H2>
 <IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
  ALT="App window in GTK2">
-"The Big One". Old and crusty, detailed documentation, examples and wisdom
+Old and crusty, detailed documentation, examples and wisdom
 are abundant. I banged my head against GTK2 for two or three days before
-succeeding in getting it to work.
+succeeding in getting it to work. Despite its age, it is buggy.
 <P>
 The resized image quality is excellent, the speed acceptable but a little laggy.
 You have rescale the image explicitly at every window resize in a callback.
+<P>
+Conclusion: Software of advanced age.
 
 <H2 name=GTK3>GTK3</H2>
 <!--<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
      ALT="App window in GTK3">-->
 "The Even Bigger One". The "deprecated" window-sizing-strategy call that
 we used in GTK2 to be able to shrink the window has now been removed.
-The trick with GTK3 instead is to put the image in a rare kind of
+The bizarre trick with GTK3 instead is to put the image in a rare kind of
 invisible container.
 <P>
 GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
@@ -91,22 +110,25 @@ the "wotsit tables" bloat out to 900MB of active RAM and it has a 100% CPU
 epileptic fit lasting tens of seconds. The code here has workarounds for the
 worst cases and a better workaround should appear from upstream sooner or later.
 See https://bugzilla.gnome.org/show_bug.cgi?id=80925
+<P>
+Conclusion: Software of advanced age going senile.
 
-<H2 name=IUP>IUP.2</H2>
+<H2 name=IUP>IUP</H2>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
      ALT="App window in IUP on the X Window System">
 Another strange and rare GUI toolkit from PUC-Rio or, rather, a collection
 of graphic libraries by different authors that stack to provide a GUI toolkit.
 <P>
-Its image-resizing down-scaler is of rough quality, producing sparkly visible
-artifacts when resizing the image very small, a defect shared with SDL2 and .
-Its image resizer is also slow, managing
-down to three or four window refreshes per second at large image size, goes
-sparkly at high reduction factors and is even more prone than GTK to going into
-paxoxysms of catatonic 100% CPU usage for tens of seconds at high image
-reductions.
+Bugs:
+<UL>
+ <LI>Its image-resizing down-scaler is of rough quality, producing sparkly
+visible artifacts when resizing small.
+ <LI>It is even more prone than GTK to going into paxoxysms of catatonic
+100% CPU usage for tens of seconds at high image reductions.
+</UL>
+Audio: IUP doesn't have an audio layer of its own, so choose one!
 <P>
-IUP doesn't have an audio layer of its own, so choose!
+Conclusion: Another elaborate joke from PUC-Rio. :)
 
 <H2 name=QT4>QT4</H2>
 In C++. Short. Zooming doesn't work yet.
@@ -115,16 +137,17 @@ In C++. Short. Zooming doesn't work yet.
 <IMG ALIGN=RIGHT SRC="sdl1.png" WIDTH= HEIGHT=
      ALT="App window in SDL 1.2">
 SDL isn't a GUI toolkit; it's a drawing library. For the simple test program
-it has the smallest code, the smallest executable and the fastest/smoothest
-image scaling. If you want anything more, you have to draw everything yourself
-or run it from keystrokes. SDL1 doesn't have an image scaler, so we use
-the swscaler library, which results slow and laggy.
+it has the smallest code and the smallest executable.
+If you want anything more, you have to draw everything yourself
+and pilot it by keystrokes. SDL1 doesn't have an image scaler of its own,
+so we use the swscaler library, which results slow and laggy.
 
 <H2 name=SDL2>SDL2</H2>
 <IMG ALIGN=RIGHT SRC="sdl2.png" WIDTH= HEIGHT=
      ALT="App window in SDL 2">
 As above, except that it now has its own image scaler.
-Scaling is fast but its scaler is nearest-neighbour, not smooth. 
+Scaling is the fastest but its scaler is nearest-neighbour, so it goes sparkly
+at small sizes.
 
 <H1>Executable sizes</H1>
 <PRE>
@@ -132,7 +155,7 @@ Scaling is fast but its scaler is nearest-neighbour, not smooth.
    ---------in bytes--------                -in kilobytes-
    text   data    bss  total   filename       VSIZ     RSS
    3081    448      8   3537   image1-agar   52212   20732
-   3496    524     12   4032   image1-efl    35540   16480
+   3496    524     12   4032   image1-elm    35540   16480
    3857    480      4   4341   image1-gtk2   23712   13080
    4124	   484	    4	4612   image1-gtk3   68400   23068
    3791	   516	   28	4335   image1-iup    79444   34076
@@ -140,7 +163,7 @@ Scaling is fast but its scaler is nearest-neighbour, not smooth.
    3103    352      8   3463   image1-sdl2   46780   19340
 
    5289    512     16   5817   image2-agar   52260   20864
-   5360    576     24   5960   image2-efl    36912   17612
+   5360    576     24   5960   image2-elm    36912   17612
    6452    580     24   7056   image2-gtk2   25172   15288
 </PRE>
 <TT>text</TT> is the size of our code, compiled, reflecting how long-winded it was for us to explain to the library what it should do,<BR>
