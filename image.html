@@ -5,23 +5,75 @@
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </HEAD>
 <BODY>
-<H1 ALIGN=CENTER>A Test Drive of six C GUI Toolkits</H1>
+<H1 ALIGN=CENTER>A Test Drive of Ten C GUI Toolkits</H1>
 <P ALIGN=CENTER>Martin Guy<BR>&lt;martinwguy&#64;gmail.com></P>
 <HR>
-I needed to pick a C GUI Toolkit and, being new to GUI programming,
-thought I'd try implementing a few extremely simple apps in a range
-of them and see which came out shortest and which easiest.
+I need to pick a C GUI Toolkit for a project and
+thought I'd try implementing some simple apps in a range
+of them and see which came out shortest/easiest/best.
 
-<H2>Primacies</H2>
-<UL>
- <LI>Shortest code length, of the ones that work:
-     ELM at 1800 bytes followed by AGAR and SDL2 at 2600 and 2700.
- <LI>Fastest image-zooming rate: SDL2 followed by ELM.
-</UL>
+<H2>Summary</H2>
+<TABLE border=1 rowpadding=1 cellspacing=1>
+ <TR>
+  <TH>Toolkit
+  <TH>FPS
+  <TH>Quality
+  <TH>Remarks
+ <TR>
+  <TD>AGAR
+  <TD>
+  <TD>Nearest, buggy
+  <TD>Buggy. Minimum window size of 32x32
+ <TR>
+  <TD>ELM
+  <TD>
+  <TD>Bilinear but jerky
+  <TD>Shortest code length, of the ones that work
+ <TR>
+  <TD>EVAS
+  <TD>
+  <TD>Bilinear but jerky
+  <TD>
+ <TR>
+  <TD>FLTK
+  <TD>
+  <TD>
+  <TD>Not implemented yet
+ <TR>
+  <TD>GTK2
+  <TD>
+  <TD>Bilinear, sometimes pauses for minutes
+  <TD>Old
+ <TR>
+  <TD>GTK3
+  <TD>
+  <TD>Bilinear, sometimes pauses for minutes
+  <TD>Senile
+ <TR>
+  <TD>IUP
+  <TD>
+  <TD>Nearest, jumpy, sometimes pauses for seconds
+  <TD>
+ <TR>
+  <TD>QT4
+  <TD>
+  <TD>
+  <TD>Not fully implemented yet
+ <TR>
+  <TD>SDL1
+  <TD>
+  <TD>Bilinear with swscaler, OK but flickery
+  <TD>
+ <TR>
+  <TD>SDL2
+  <TD>
+  <TD>Nearest, very fast
+  <TD>
+</TABLE>
 
-<H1>The Candidates</H1>
+<H2>Detail</H2>
 
-<H2 name=AGAR>AGAR</H2>
+<H3 name=AGAR>AGAR</H3>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
      ALT="App window in AGAR on X">
 A strange and rare GUI toolkit from PUC-Rio. You have to install it from
@@ -38,10 +90,12 @@ spitting a buffer of samples at the audio output device, OK for going "boing".
 Bugs/Features:
 <UL>
  <LI>The menus don't close when you move off them or press Esc.
- <LI>On rare occasions it displays the image with its top left corner
+ <LI>On rare occasions it opens the image with its top left corner
 in the center of the window.
+ <LI>When resizing using a corner other than the bottom right one, it
+     sometimes gets the image position wrong.
  <LI>The image-resizing speed is acceptable but it uses a poor resizing
-algorithm.
+     algorithm.
  <LI>The image is sometimes displayed skewed by 34 or 45 degrees or in greyscale.
  <LI>See the top of image-agar.c for even more bugs in AGAR.
      Since reporting some of these bugs weeks ago there has been no response
@@ -50,12 +104,12 @@ algorithm.
 </UL>
 Conclusion: Buggy abandonware.
 
-<H2 name=ELM>ELM</H2>
+<H3 name=ELM>ELM</H3>
 <IMG ALIGN=RIGHT SRC="elm.png" WIDTH= HEIGHT=
      ALT="App window in ELM on X">
 The "Elementary" GUI toolkit of the Enlightenment Foundation Libraries.
 <P>
-Despite bug holes in the documentation and few examples,
+Despite big holes in the documentation and few examples,
 the first example program was working in a couple of hours.
 The second example, with a File-Open/Quit menu bar above the image, took
 days to get right. Fast and robust once it's right.
@@ -71,21 +125,21 @@ The only available example audio-playing program needs e18, but Debian/Ubuntu
 are still at e17.
 <P>
 Conclusion: An adolscent, as software goes: jolly clever, modern and pretty
-but immature and difficult to live with.  It is set to become the
-No.3 cellphone "Operating System" after iOS and Android, thanks to Tizen.
+but immature and difficult to work with.  Thanks to Tizen, it is set to become
+the No.3 cellphone "Operating System" after iOS and Android.
 
-<H2 name=EVAS>EVAS</H2>
+<H3 name=EVAS>EVAS</H3>
 <IMG ALIGN=RIGHT SRC="evas.png" WIDTH= HEIGHT=
      ALT="App window in Ecore_Evas on X">
 The "Ecore_Evas" component of the Enlightenment Foundation Libraries,
 a lower-level part of EFL giving just a drawing canvas and no widgets.
 <P>
-Not working yet.
+Conclusion: Getting it to work is a strange game.
 
-<H2 name=FLTK>FLTK</H2>
+<H3 name=FLTK>FLTK</H3>
 Not implemented yet.
 
-<H2 name=GTK2>GTK2</H2>
+<H3 name=GTK2>GTK2</H3>
 <IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
  ALT="App window in GTK2">
 Old and crusty, detailed documentation, examples and wisdom
@@ -97,9 +151,9 @@ You have rescale the image explicitly at every window resize in a callback.
 <P>
 Conclusion: Software of advanced age.
 
-<H2 name=GTK3>GTK3</H2>
-<!--<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
-     ALT="App window in GTK3">-->
+<H3 name=GTK3>GTK3</H3>
+<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
+     ALT="App window in GTK3">
 "The Even Bigger One". The "deprecated" window-sizing-strategy call that
 we used in GTK2 to be able to shrink the window has now been removed.
 The bizarre trick with GTK3 instead is to put the image in a rare kind of
@@ -111,9 +165,9 @@ epileptic fit lasting tens of seconds. The code here has workarounds for the
 worst cases and a better workaround should appear from upstream sooner or later.
 See https://bugzilla.gnome.org/show_bug.cgi?id=80925
 <P>
-Conclusion: Software of advanced age going senile.
+Conclusion: Software of advanced age becoming senile.
 
-<H2 name=IUP>IUP</H2>
+<H3 name=IUP>IUP</H3>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
      ALT="App window in IUP on the X Window System">
 Another strange and rare GUI toolkit from PUC-Rio or, rather, a collection
@@ -128,49 +182,28 @@ visible artifacts when resizing small.
 </UL>
 Audio: IUP doesn't have an audio layer of its own, so choose one!
 <P>
-Conclusion: Another elaborate joke from PUC-Rio. :)
+Conclusion: Another elaborate joke from PUC-Rio!
 
-<H2 name=QT4>QT4</H2>
+<H3 name=QT4>QT4</H3>
+<IMG ALIGN=RIGHT SRC="at4.png" WIDTH= HEIGHT=
+     ALT="App window in QT4">
 In C++. Short. Zooming doesn't work yet.
 
-<H2 name=SDL1>SDL1.2</H2>
+<H3 name=SDL1>SDL1.2</H3>
 <IMG ALIGN=RIGHT SRC="sdl1.png" WIDTH= HEIGHT=
      ALT="App window in SDL 1.2">
 SDL isn't a GUI toolkit; it's a drawing library. For the simple test program
 it has the smallest code and the smallest executable.
 If you want anything more, you have to draw everything yourself
 and pilot it by keystrokes. SDL1 doesn't have an image scaler of its own,
-so we use the swscaler library, which results slow and laggy.
+so we use the swscaler library, which results in laggy operation.
 
-<H2 name=SDL2>SDL2</H2>
+<H3 name=SDL2>SDL2</H3>
 <IMG ALIGN=RIGHT SRC="sdl2.png" WIDTH= HEIGHT=
      ALT="App window in SDL 2">
 As above, except that it now has its own image scaler.
-Scaling is the fastest but its scaler is nearest-neighbour, so it goes sparkly
-at small sizes.
-
-<H1>Executable sizes</H1>
-<PRE>
-   === Our compiled code ===                =When running=
-   ---------in bytes--------                -in kilobytes-
-   text   data    bss  total   filename       VSIZ     RSS
-   3081    448      8   3537   image1-agar   52212   20732
-   3496    524     12   4032   image1-elm    35540   16480
-   3857    480      4   4341   image1-gtk2   23712   13080
-   4124	   484	    4	4612   image1-gtk3   68400   23068
-   3791	   516	   28	4335   image1-iup    79444   34076
-   3007    356      8   3371   image1-sdl1   19452    8980
-   3103    352      8   3463   image1-sdl2   46780   19340
-
-   5289    512     16   5817   image2-agar   52260   20864
-   5360    576     24   5960   image2-elm    36912   17612
-   6452    580     24   7056   image2-gtk2   25172   15288
-</PRE>
-<TT>text</TT> is the size of our code, compiled, reflecting how long-winded it was for us to explain to the library what it should do,<BR>
-<TT>data</TT> and <TT>bss</TT> are the initialised and zeroed data we needed,<BR>
-<TT>total</TT> the sum of these three.<BR>
-<TT>VSIZ</TT> includes both ours and the library's compiled code and data and<BR>
-<TT>RSS</TT> reflects how much of that is in RAM.
+Its scaling is the fastest but its scaler is nearest-neighbour
+so it goes sparkly at small sizes.
 <HR>
 Martin Guy &lt;martinwguy&#64;gmail.com>, November 2016.
 </BODY>
