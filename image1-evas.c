@@ -51,6 +51,13 @@ main(int argc, char **argv)
 #endif
     evas_object_image_file_set(image, filename, NULL);
     {
+	int err = evas_object_image_load_error_get(image);
+	if (err != EVAS_LOAD_ERROR_NONE) {
+	    fprintf(stderr, "Cannot load image: %s\n", evas_load_error_str(err));
+	    exit(1);
+	}
+    }
+    {
         /* Set the window size to fit the image */
 	int w, h;
 	evas_object_image_size_get(image, &w, &h);
