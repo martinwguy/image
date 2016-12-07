@@ -1,0 +1,53 @@
+IUP, CD and IM
+--------------
+
+# Install dependencies
+
+sudo apt-get install liblua5.1-dev libreadline-dev libftlk-dev libfreetype6-dev
+
+# First, IM:
+
+wget http://downloads.sourceforge.net/project/imtoolkit/3.12/Docs%20and%20Sources/im-3.12_Sources.tar.gz
+tar xfz im-3.12_Sources.tar.gz
+mv im im-3.12
+cd im-3.12
+LUA_SUFFIX= LUA_INC=/usr/include/lua5.1 make
+sed -i 's:/usr/:/usr/local/:' tec_uname
+sudo ./install
+sudo ./install_dev
+cd ..
+
+# Then CD:
+
+wget http://downloads.sourceforge.net/project/canvasdraw/5.11/Docs%20and%20Sources/cd-5.11_Sources.tar.gz
+tar xfz cd-5.11_Sources.tar.gz
+mv cd cd-5.11
+cd cd-5.11
+LUA_SUFFIX= LUA_INC=/usr/include/lua5.1 \
+IM_INC=/usr/local/include/im IM_LIB=/usr/local/lib make
+sed -i 's:/usr/:/usr/local/:' tec_uname
+sudo ./install
+sudo ./install_dev
+# Complains about libfreetype and libftgl not existing.
+sudo install lib/Linux316/Lua51/libcdlua* /usr/local/lib/
+cd ..
+
+# Then IUP:
+
+apt-get install libgtk2.0-dev or libgtk-3-dev
+apt-get install libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-3.0-dev
+
+wget http://downloads.sourceforge.net/project/iup/3.20/Docs%20and%20Sources/iup-3.20_Sources.tar.gz
+tar xfz iup-3.20_Sources.tar.gz
+mv iup iup-3.20
+cd iup-3.20
+LUA_SUFFIX= LUA_INC=/usr/include/lua5.1 LUA_LIB=/usr/lib/i386-linux-gnu \
+IM_INC=/usr/local/include/im IM_LIB=/usr/local/lib \
+CD_INC=/usr/local/include/cd CD_LIB=/usr/local/lib make
+sed -i 's:/usr/:/usr/local/:' tec_uname
+sudo ./install
+sudo ./install_dev
+cd ..
+
+# Clean
+rm -r */obj
