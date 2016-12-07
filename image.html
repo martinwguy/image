@@ -19,25 +19,7 @@ of them and see which came out shortest and which easiest.
  <LI>Fastest image-zooming rate: SDL2 followed by ELM.
 </UL>
 
-<H2>The Candidates</H2>
-* <A HREF=#AGAR>AGAR</A>: PUC-Rio's in-house one. Easy and pleasant to program.
-Hard to learn as the only doc is a reference manual; almost no tutorials or
-examples. Our code to make it work is short (2633 bytes). Buggy.
-* <A HREF=#ELM>ELM: "Elementary" from the Enlightenment Foundation Libraries.
-Docs patchy.  Simple stuff was easy, anything else is difficult to get right. 
-Fast and robust once it's right.  Portable to mobile devices.
-* <A HREF=#EVAS>"Ecore_Evas" from the Enlightenment Foundation Libraries,
-a lower-level interface. Not working yet.
-* <A HREF=#FLTK>FLTK: Not implemented yet.
-* <A HREF=#GTK2>GTK2: Long-winded. Buggy.
-* <A HREF=#GTK3>GTK3: I had to jump through strange hoops to get it to work.
-* <A HREF=#IUP>IUP: Another one from PUC-Rio.
-* <A HREF=#QT>In C++. Short. Not fully working yet.
-* <A HREF=#SDL1>SDL1.2: No Menu/File selector stuff. No built-in image scaler
-so we use libswscaler.
-* <A HREF=#SDL2>SDL2: No Menu/File selector stuff.
-
-<H1>Remarks</H1>
+<H1>The Candidates</H1>
 
 <H2 name=AGAR>AGAR</H2>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
@@ -45,9 +27,10 @@ so we use libswscaler.
 A strange and rare GUI toolkit from PUC-Rio. You have to install it from
 source code as it's not packaged in Debian/Ubuntu yet. The documentation
 consists of a reference manual but the code needed to get things done
-turns out to be refreshingly short. It compiles for Window, Mac and Linux
-and has libraries for vector graphic, math with optimised matrix and geometry,
+turns out to be refreshingly short. It compiles for Windows, Mac and Linux
+and has libraries for vector graphics, math with optimised matrix and geometry,
 audio output and threading (mutexes, object locking and wait/signal).
+On Debian/Ubuntu you need to install it from the source code. Buggy.
 <P>
 Its audio capabilities are limited to reading files into RAM with libsndfile
 and spitting a buffer of samples at the audio output device.
@@ -57,25 +40,16 @@ Bugs/Features:
  <LI>The menus don't close when you move off them or press Esc.
  <LI>on rare occasions it displays the image with its top left corner
 in the center of the window.
- <LI>The image-resizing speed is acceptable but it uses the sparkly resizing
+ <LI>The image-resizing speed is acceptable but it uses a poor resizing
 algorithm.
  <LI>Its sound-playing interface is a joke, good only for going "boing".
 </UL>
 
-<H2 name=EFL>EFL</H2>
-<IMG ALIGN=RIGHT SRC="efl.png" WIDTH= HEIGHT=
-     ALT="App window in EFL">
-My second try was with the one of the most recent toolkits, the Englightenment
-Foundation Library. In the same way that GTK grew out of the GIMP image editor,
-EFL grew out of the Enlightenment window manager/desktop.
-The app should work on Windows, Mac, Linux, Android and iPhone.
 <P>
-To my surprise, despite a dearth of patchy documentation and few examples,
+Despite bug holes in the documentation and few examples,
 the first example program was working in a couple of hours.
-To my even greater surprise, getting the second example to work,
-the one with a File-Open/Quit menu bar above the image, took
-days and days and still isn't working properly so I'm not sure what's
-going on.
+The second example, with a File-Open/Quit menu bar above the image, took
+days to get right. Fast and robust once it's right.
 <P>
 The zoomed image is of superb quality (it looks like its algorithm is
 the same as GTK's), zooming smoothly as the window is resized.
@@ -87,14 +61,23 @@ Documentation/examples are almost nonexistent; you have to read the source.
 The only availableexample sudio-playing program needs e18, but Debian/Ubuntu
 are still at e17.
 
+<H2 name=FLTK>FLTK</H2>
+Not implemented yet.
+
+* <A HREF=#GTK2>GTK2: Long-winded. Buggy.
+* <A HREF=#GTK3>GTK3: Similar. You have to jump through strange hoops
+to make it work.
+
 <H2 name=GTK2>GTK2</H2>
 <IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
-     ALT="App window in GTK2">
+ ALT="App window in GTK2">
 "The Big One". Old and crusty, detailed documentation, examples and wisdom
 are abundant. I banged my head against GTK2 for two or three days before
 succeeding in getting it to work.
 <P>
 The resized image quality is excellent, the speed acceptable but a little laggy.
+You have rescale the image explicitly at every window resize in a callback.
+
 <H2 name=GTK3>GTK3</H2>
 <!--<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
      ALT="App window in GTK3">-->
@@ -125,6 +108,9 @@ reductions.
 <P>
 IUP doesn't have an audio layer of its own, so choose!
 
+<H2 name=QT4>QT4</H2>
+In C++. Short. Zooming doesn't work yet.
+
 <H2 name=SDL1>SDL1.2</H2>
 <IMG ALIGN=RIGHT SRC="sdl1.png" WIDTH= HEIGHT=
      ALT="App window in SDL 1.2">
@@ -137,9 +123,8 @@ the swscaler library, which results slow and laggy.
 <H2 name=SDL2>SDL2</H2>
 <IMG ALIGN=RIGHT SRC="sdl2.png" WIDTH= HEIGHT=
      ALT="App window in SDL 2">
-As above, except that it now has its own image scaler. This is the
-only implementation of image example program 1 to be fast and have no bugs
-though its image scaler goes sparkly at high reduction factors.
+As above, except that it now has its own image scaler.
+Scaling is fast but its scaler is nearest-neighbour, not smooth. 
 
 <H1>Executable sizes</H1>
 <PRE>
@@ -153,6 +138,7 @@ though its image scaler goes sparkly at high reduction factors.
    3791	   516	   28	4335   image1-iup    79444   34076
    3007    356      8   3371   image1-sdl1   19452    8980
    3103    352      8   3463   image1-sdl2   46780   19340
+
    5289    512     16   5817   image2-agar   52260   20864
    5360    576     24   5960   image2-efl    36912   17612
    6452    580     24   7056   image2-gtk2   25172   15288

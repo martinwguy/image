@@ -1,4 +1,4 @@
-Here is the same simple image file viewer written in ten C GUI toolkits:
+Here is the a simple image file viewer written in ten C GUI toolkits:
 AGAR, Enlightenment's ELM and Ecore_Evas interfaces, GTK2 and 3, FLTK,
 IUP, QT4, SDL1 and SDL2.
 
@@ -12,51 +12,6 @@ the application should quit.
 
 A second example, image2, has a File-Open/Quit menu bar above the image.
 
-AGAR:	On Debian/Ubuntu you have to install it from the source code.
-	There only seems to be a reference manual.
-	The few random "tutorials" posted on the web in 2015 are in non-working
-	web containers giving just indices of directory contents and consist
-	of Markdown files in *.htm files.
-	Its mailing list, existing since 2007, has never had more than
-	11 kbytes of messages in any one month. To see the bugs in their
-	bugzilla you have to register, and the activation email contains a
-	broken link.
-	AG_ScaleSurface is limited to Uint16 dimensions which I suppose is
-	better than Cairo's 32767...
-	It has audio support and its thread support may be useful for
-	calculang FFTs in the background.
-
-ELM:	The Enlightenment Foundation Library. Despite the extremely patchy
-	documentation and rndo selection of code examples, image1 was working
-	in under an hour. image2, adding a menu bar above the image, took days.
-	The result is fast and good quality and the code it needs is the
-	shortest by far.
-
-EVAS:	A lower level of the Enlightenment Foundation library.
-	Doesn't work properly yet.
-
-GTK2:	Big and old, lots of documentation, tutorials and code examples on the
-	web. Should be stable, complete and well-maintained.
-	It took me two days to get image1 working. You have rescale the image
-	explicitly at every window resize in a callback by calling one of its
-	functions to do this for you.
-	When I resize down to 1x1 and up again, it goes into a 100% CPU loop
-	for dozens of seconds, then recovers and starts working again without
-	being prodded, as mysteriously as it went into paralysis.  I see that
-	one of the simple open source GTK image viewers in Debian has exactly
-	the same bug.
-
-GTK3:	Similar. Had to jump through strange hoops to get it to work.
-
-FLTK:	An attempted implementation, not finished yet.
-
-IUP:	Another GUI toolkit from PUC-Rio, like AGAR.
-
-QT4:	An attempted implementation in C++, not finished yet.
-
-SDL1: 	Lower-level, like EVAS. Small, short code and fast.
-SDL2: 
-
-See also: image.html
+See image.html for details.
 
     Martin Guy <martinwguy@gmail.com>, November 2016.
