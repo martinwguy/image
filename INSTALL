@@ -11,7 +11,7 @@ http://libagar.org/download.html while on Unix you install it from source:
     sudo make install
 
 ELM/EVAS
-    apt-get install e17-dev
+    apt-get install libelementary-dev
 
 FLTK
     apt-get install libfltk1.3-dev
