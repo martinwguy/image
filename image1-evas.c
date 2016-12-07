@@ -24,8 +24,10 @@ int
 main(int argc, char **argv)
 {
     Ecore_Evas *ee;
+    Evas *canvas;
     Evas_Object *image;
     char *filename = (argc > 1) ? argv[1] : "image.jpg";
+    int w, h;
 
     if (!ecore_evas_init()) {
 	fputs("Cannot initialize graphics subsystem.\n", stderr);
@@ -40,15 +42,16 @@ main(int argc, char **argv)
     ecore_evas_callback_delete_request_set(ee, quitGUI);
     ecore_evas_title_set(ee, "image1-evas");
     ecore_evas_show(ee);
+
+    canvas = ecore_evas_get(ee);
 #if 1
-    {
-	Evas *canvas = ecore_evas_get(ee);
-	image = evas_object_image_filled_add(canvas);
-    }
+    image = evas_object_image_filled_add(canvas);
 #else
     image = ecore_evas_object_image_new(ee);
     evas_object_image_filled_set(image, EINA_TRUE);
 #endif
+
+    /* Load the image file */
     evas_object_image_file_set(image, filename, NULL);
     {
 	int err = evas_object_image_load_error_get(image);
@@ -57,13 +60,11 @@ main(int argc, char **argv)
 	    exit(1);
 	}
     }
-    {
-        /* Set the window size to fit the image */
-	int w, h;
-	evas_object_image_size_get(image, &w, &h);
-	ecore_evas_resize(ee, w, h);
-    }
     evas_object_show(image);
+
+    /* Set the window size to fit the image */
+    evas_object_image_size_get(image, &w, &h);
+    ecore_evas_resize(ee, w, h);
 
     /* Propagate resize events from the container to the image */
     ecore_evas_object_associate(ee, image, 0);
@@ -85,12 +86,9 @@ keyDown(void *data, Evas *evas, Evas_Object *obj, void *einfo)
     Evas_Event_Key_Down *ev = einfo;
     const Evas_Modifier *mods = evas_key_modifier_get(evas);
 
-printf("Keydown\n");
-
     if (evas_key_modifier_is_set(mods, "Control") &&
-	strcmp(ev->key, "q") == 0) {
+	strcmp(ev->key, "q") == 0)
 	ecore_main_loop_quit();
-    }
 }
 
 /* Quit on Control-Q */
