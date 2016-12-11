@@ -66,7 +66,7 @@ image1-qt4/image1-qt4.pro:
 	cd image1-qt4 && qmake -project
 
 show: $(ALL)
-	for a in $(ALL); do ./$$a image2.jpg & done
+	for a in $(ALL); do ./$$a "$(IMAGE)" & done
 
 clean:
 	rm -f $(ALL) *.o
