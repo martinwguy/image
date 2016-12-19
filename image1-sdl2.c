@@ -15,6 +15,8 @@
  *
  * Bugs:
  *    - None.
+ * Features:
+ *    - Texture dimensions are limited to 4096x4096.
  *
  *	Martin Guy <martinwguy@gmail.com>, October-November 2016.
  */
