@@ -8,10 +8,7 @@
  * If they hit Control-Q or poke the [X] icon in the window's titlebar,
  * the application should quit.
  *
- * Bugs:
- *    - If you open an image file that is wider than the virtual desktop
- *	and then move the window left, the newly-exposed area is not refreshed
- *	and remains white. Tested under xfce 4.10 on Debian i386.
+ * Bugs: None
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */

@@ -10,6 +10,7 @@
  *
  * Bugs:
  *    - swscale can't rescale to smaller than 9x7.
+ *    - While resizing, the image flickers black.
  *
  * Features:
  *    - It's a bit slow/laggy.

@@ -21,6 +21,14 @@
  *	and it doesn't respond to [x] or Control-Q any more. It sometimes
  *	recovers, but during the paralysis its VM usage goes from 46M to 940M.
  *	See https://bugzilla.gnome.org/show_bug.cgi?id=80925
+ *    - Opening an image larger than the desktop (in this case 4728x864) and
+ *	then moving it left to expose new area on the right provokes:
+(image1-gtk3:22689): GdkPixbuf-CRITICAL **: gdk_pixbuf_get_n_channels: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+(image1-gtk3:22689): GdkPixbuf-CRITICAL **: gdk_pixbuf_get_height: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+(image1-gtk3:22689): GdkPixbuf-CRITICAL **: gdk_pixbuf_get_width: assertion 'GDK_IS_PIXBUF (pixbuf)' failed
+**
+Gdk:ERROR:/build/gtk+3.0-b165l9/gtk+3.0-3.14.5/./gdk/gdkcairo.c:193:gdk_cairo_surface_paint_pixbuf: assertion failed: (cairo_image_surface_get_format (surface) == CAIRO_FORMAT_RGB24 || cairo_image_surface_get_format (surface) == CAIRO_FORMAT_ARGB32)
+Aborted (core dumped)
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */

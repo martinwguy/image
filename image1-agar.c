@@ -14,6 +14,11 @@
  *	gets offset by half a window size, apparently to a random position.
  *	It remains there as you move the window about until you resize the
  *	window using one of its corners.
+ *    - If you open an image wider than the desktop (here 4728x864) it first
+ *	displays the whole image downscaled to the size of a window limited to
+ *	the desktop dimensions. When you move the window left to expose area on
+ *	the right, its size wops out to the full 1:1 width and the newly-exposed
+ *	area is all gray.
  * Features:
  *    - The minimum window size is about 16x16 instead of 1x1.
  *    - The scaling is done to the nearest pixel, giving a shimmering effect
