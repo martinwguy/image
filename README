@@ -1,8 +1,8 @@
-Here is the a simple image file viewer written in ten C GUI toolkits:
+Here are two simple image file viewers written in ten C GUI toolkits:
 AGAR, Enlightenment's ELM and Ecore_Evas interfaces, GTK2 and 3, FLTK,
 IUP, QT4, SDL1 and SDL2.
 
-The first example program is given the image file as a command-line argument
+image1 is given the image file as a command-line argument
 with a default of image.jpg.
 The window should open to exactly fit the image at one-pixel-per-pixel size.
 The user can then resize the window and the image scales to fit the window
@@ -10,7 +10,7 @@ without keeping its aspect ratio.
 If they hit Control-Q or poke the [X] icon in the window's titlebar,
 the application should quit.
 
-A second example, image2, has a File-Open/Quit menu bar above the image.
+image2 is the same but has a File-Open/Quit menu bar above the image.
 
 See image.html for details.
 
