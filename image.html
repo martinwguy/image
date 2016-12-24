@@ -13,6 +13,21 @@ thought I'd try implementing some simple apps in a range
 of them and see which came out shortest/easiest/best.
 
 <H2>Summary</H2>
+<U>Legend</U><BR>
+<UL>
+ <LI><I>Nearest:</I>
+A poor-quality fast scaling algorithm that makes the image
+sparkle as you resize it at high downscaling.
+ <LI><I>Bilinear:</I>
+A better-quality scaling algorithm produces smooth output when enlarging
+and when reducing, all input pixels contribute to the final output.
+ <LI><I>Jerky:</I>
+The screen update rate is not fast enough to give the impression of
+smooth motion.
+ <LI><I>Buggy:</I>
+The toolkit itself exhibited grave internal bugs.
+</UL>
+
 <TABLE border=1 rowpadding=1 cellspacing=1>
  <TR>
   <TH>Toolkit
@@ -52,7 +67,7 @@ of them and see which came out shortest/easiest/best.
  <TR>
   <TD>IUP
   <TD>
-  <TD>Nearest, jumpy, sometimes pauses for seconds
+  <TD>Nearest, jerky, sometimes pauses for seconds
   <TD>
  <TR>
   <TD>QT4
@@ -62,7 +77,7 @@ of them and see which came out shortest/easiest/best.
  <TR>
   <TD>SDL1
   <TD>
-  <TD>Bilinear with swscaler, OK but flickery
+  <TD>Bilinear with swscaler, OK but flickers to black
   <TD>
  <TR>
   <TD>SDL2
@@ -76,9 +91,8 @@ of them and see which came out shortest/easiest/best.
 <H3 name=AGAR>AGAR</H3>
 <IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
      ALT="App window in AGAR on X">
-A strange and rare GUI toolkit from PUC-Rio. You have to install it from
-source code as it's not packaged in Debian/Ubuntu yet. The documentation
-consists of a reference manual but the code needed to get things done
+A strange and rare GUI toolkit from PUC-Rio. The documentation
+consists of just a reference manual but the code needed to get things done
 turns out to be refreshingly short. It compiles for Windows, Mac and Linux
 and has libraries for vector graphics, math with optimised matrix and geometry,
 audio output and threading (mutexes, object locking and wait/signal).
@@ -134,7 +148,8 @@ the No.3 cellphone "Operating System" after iOS and Android.
 The "Ecore_Evas" component of the Enlightenment Foundation Libraries,
 a lower-level part of EFL giving just a drawing canvas and no widgets.
 <P>
-Conclusion: Getting it to work is a strange game.
+Conclusion: Getting it to work is a strange game, but when it does it is
+rock-solid.
 
 <H3 name=FLTK>FLTK</H3>
 Not implemented yet.
@@ -160,7 +175,7 @@ The bizarre trick with GTK3 instead is to put the image in a rare kind of
 invisible container.
 <P>
 GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
-the "wotsit tables" bloat out to 900MB of active RAM and it has a 100% CPU
+the "filter tables" bloat out to 900MB of active RAM and it has a 100% CPU
 epileptic fit lasting tens of seconds. The code here has workarounds for the
 worst cases and a better workaround should appear from upstream sooner or later.
 See https://bugzilla.gnome.org/show_bug.cgi?id=80925
@@ -180,7 +195,7 @@ visible artifacts when resizing small.
  <LI>It is even more prone than GTK to going into paxoxysms of catatonic
 100% CPU usage for tens of seconds at high image reductions.
 </UL>
-Audio: IUP doesn't have an audio layer of its own, so choose one!
+Audio: IUP doesn't have an audio layer of its own.
 <P>
 Conclusion: Another elaborate joke from PUC-Rio!
 
