@@ -32,6 +32,9 @@ image2-elm: image2-elm.c
 image1-evas: image1-evas.c
 	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs evas ecore ecore-evas eo`
 
+audio1-evas: audio1-evas.c
+	$(CC) $(CFLAGS) $< -o $@ `pkg-config --cflags --libs emotion evas ecore ecore-evas eo`
+
 image1-fltk: image1-fltk.c
 	$(CXX) $(CFLAGS) $< -o $@ `fltk-config --cflags --libs` \
 		-lXft -lfontconfig -lXinerama -lXext -lXfixes -lX11 -ldl
