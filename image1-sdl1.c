@@ -52,7 +52,7 @@ char **argv;
 	exit(1);
     }
 
-    SDL_WM_SetCaption("image-sdl1", NULL);
+    SDL_WM_SetCaption("image1-sdl1", NULL);
 
     /* Convert source image to screen's native format */
     {
