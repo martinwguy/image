@@ -1,14 +1,19 @@
 ALL=	image1-agar image2-agar \
 	image1-elm image2-elm \
 	image1-evas \
-	image1-fltk \
 	image1-gtk2 image2-gtk2 \
 	image1-gtk3 \
 	image1-iup \
-	image1-qt4/image1-qt4 \
 	image1-sdl1 image1-sdl2
 
+	# Not working yet. And C++ to boot!
+	#image1-fltk \
+	#image1-qt4/image1-qt4 \
+
 all: $(ALL)
+
+install: all
+	install $(ALL) ~/bin/
 
 CFLAGS=-g -O2
 
@@ -66,7 +71,7 @@ image1-qt4/image1-qt4.pro:
 	cd image1-qt4 && qmake -project
 
 show: $(ALL)
-	for a in $(ALL); do ./$$a "$(IMAGE)" & done
+	for a in $(ALL); do ./$$a $(IMAGE) & done
 
 clean:
 	rm -f $(ALL) *.o
