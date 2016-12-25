@@ -1,6 +1,5 @@
-Here are two simple image file viewers written in ten C GUI toolkits:
-AGAR, Enlightenment's ELM and Ecore_Evas interfaces, GTK2 and 3, FLTK,
-IUP, QT4, SDL1 and SDL2.
+Here are two simple image file viewers written in different C GUI toolkits:
+AGAR, Enlightenment's ELM and Ecore_Evas interfaces, GTK2 and 3, IUP, SDL1 and 2.
 
 image1 is given the image file as a command-line argument
 with a default of image.jpg.

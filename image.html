@@ -5,105 +5,42 @@
 <META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </HEAD>
 <BODY>
-<H1 ALIGN=CENTER>A Test Drive of Ten C GUI Toolkits</H1>
+<H1 ALIGN=CENTER>C GUI Toolkit Test Drive</H1>
 <P ALIGN=CENTER>Martin Guy<BR>&lt;martinwguy&#64;gmail.com></P>
 <HR>
 I need to pick a C GUI Toolkit for a project and
 thought I'd try implementing some simple apps in a range
 of them and see which came out shortest/easiest/best.
+<H2>TOC</H2>
+<OL>
+ <LI>The Candidates
+  <OL>
+   <LI><A HREF=#AGAR>AGAR</A>
+   <LI><A HREF=#ELM>ELM</A>
+   <LI><A HREF=#EVAS>EVAS</A>
+   <LI><A HREF=#IUP>IUP</A>
+   <LI><A HREF=#GTK2>GTK2</A>
+   <LI><A HREF=#GTK3>GTK3</A>
+   <LI><A HREF=#SDL1>SDL1</A>
+   <LI><A HREF=#SDL2>SDL2</A>
+  </OL>
+ <LI>Summary
+</OL>
 
-<H2>Summary</H2>
-<U>Legend</U><BR>
-<UL>
- <LI><I>Nearest:</I>
-A poor-quality fast scaling algorithm that makes the image
-sparkle as you resize it at high downscaling.
- <LI><I>Bilinear:</I>
-A better-quality scaling algorithm produces smooth output when enlarging
-and when reducing, all input pixels contribute to the final output.
- <LI><I>Jerky:</I>
-The screen update rate is not fast enough to give the impression of
-smooth motion.
- <LI><I>Buggy:</I>
-The toolkit itself exhibited grave internal bugs.
-</UL>
-
-<TABLE border=1 rowpadding=1 cellspacing=1>
- <TR>
-  <TH>Toolkit
-  <TH>FPS
-  <TH>Quality
-  <TH>Remarks
- <TR>
-  <TD>AGAR
-  <TD>
-  <TD>Nearest, buggy
-  <TD>Buggy. Minimum window size of 32x32
- <TR>
-  <TD>ELM
-  <TD>
-  <TD>Bilinear but jerky
-  <TD>Shortest code length, of the ones that work
- <TR>
-  <TD>EVAS
-  <TD>
-  <TD>Bilinear but jerky
-  <TD>
- <TR>
-  <TD>FLTK
-  <TD>
-  <TD>
-  <TD>Not implemented yet
- <TR>
-  <TD>GTK2
-  <TD>
-  <TD>Bilinear, sometimes pauses for minutes
-  <TD>Old
- <TR>
-  <TD>GTK3
-  <TD>
-  <TD>Bilinear, sometimes pauses for minutes
-  <TD>Senile
- <TR>
-  <TD>IUP
-  <TD>
-  <TD>Nearest, jerky, sometimes pauses for seconds
-  <TD>
- <TR>
-  <TD>QT4
-  <TD>
-  <TD>
-  <TD>Not fully implemented yet
- <TR>
-  <TD>SDL1
-  <TD>
-  <TD>Bilinear with swscaler, OK but flickers to black
-  <TD>
- <TR>
-  <TD>SDL2
-  <TD>
-  <TD>Nearest, very fast
-  <TD>
-</TABLE>
-
-<H2>Detail</H2>
+<H2 name=candidates>The Candidates</H2>
 
 <H3 name=AGAR>AGAR</H3>
-<IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-agar.png" WIDTH=203 HEIGHT=177
      ALT="App window in AGAR on X">
 A strange and rare GUI toolkit from PUC-Rio. The documentation
 consists of just a reference manual but the code needed to get things done
-turns out to be refreshingly short. It compiles for Windows, Mac and Linux
-and has libraries for vector graphics, math with optimised matrix and geometry,
-audio output and threading (mutexes, object locking and wait/signal).
+turns out to be refreshingly short. It compiles for Windows, Mac and Linux.
 On Debian/Ubuntu you need to install it from the source code.
-<P>
-Its audio capabilities are limited to reading files into RAM with libsndfile and
-spitting a buffer of samples at the audio output device, OK for going "boing".
 <P>
 Bugs/Features:
 <UL>
  <LI>The menus don't close when you move off them or press Esc.
+ <LI>It has a minimum window size of 32x32
  <LI>On rare occasions it opens the image with its top left corner
 in the center of the window.
  <LI>When resizing using a corner other than the bottom right one, it
@@ -114,14 +51,15 @@ in the center of the window.
  <LI>See the top of image-agar.c for even more bugs in AGAR.
      Since reporting some of these bugs weeks ago there has been no response
      or activity from its maintainer.
- <LI>Its sound-playing interface is a joke, good only for going "boing".
 </UL>
 Conclusion: Buggy abandonware.
 
+<BR CLEAR=ALL>
 <H3 name=ELM>ELM</H3>
-<IMG ALIGN=RIGHT SRC="elm.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-elm.png" WIDTH=202 HEIGHT=176
      ALT="App window in ELM on X">
 The "Elementary" GUI toolkit of the Enlightenment Foundation Libraries.
+Runs on Windows, Mac, Linux, Android and iOS and is the native GTK for Tizen.
 <P>
 Despite big holes in the documentation and few examples,
 the first example program was working in a couple of hours.
@@ -131,19 +69,14 @@ days to get right. Fast and robust once it's right.
 The zoomed image is of superb quality (it looks like its algorithm is
 the same as GTK's), zooming smoothly as the window is resized.
 <P>
-EFL's base-level audio library, Ecore_audio, is too limited.
-"Emotion" instead wraps gstreamer, xine and vlc for audio/video playback
-and even has the "I've just finished playing the last buffer" events we need.
-Documentation/examples are almost nonexistent; you have to read the source.
-The only available example audio-playing program needs e18, but Debian/Ubuntu
-are still at e17.
+It requires the least lines of code, of the ones that work.
 <P>
-Conclusion: An adolscent, as software goes: jolly clever, modern and pretty
-but immature and difficult to work with.  Thanks to Tizen, it is set to become
-the No.3 cellphone "Operating System" after iOS and Android.
+Conclusion: A promising adolscent, as software goes: brilliant and quirky but
+difficult to live with.
 
+<BR CLEAR=ALL>
 <H3 name=EVAS>EVAS</H3>
-<IMG ALIGN=RIGHT SRC="evas.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-evas.png" WIDTH=202 HEIGHT=176
      ALT="App window in Ecore_Evas on X">
 The "Ecore_Evas" component of the Enlightenment Foundation Libraries,
 a lower-level part of EFL giving just a drawing canvas and no widgets.
@@ -151,11 +84,9 @@ a lower-level part of EFL giving just a drawing canvas and no widgets.
 Conclusion: Getting it to work is a strange game, but when it does it is
 rock-solid.
 
-<H3 name=FLTK>FLTK</H3>
-Not implemented yet.
-
+<BR CLEAR=ALL>
 <H3 name=GTK2>GTK2</H3>
-<IMG ALIGN=RIGHT SRC="gtk2.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-gtk2.png" WIDTH=202 HEIGHT=176
  ALT="App window in GTK2">
 Old and crusty, detailed documentation, examples and wisdom
 are abundant. I banged my head against GTK2 for two or three days before
@@ -166,8 +97,9 @@ You have rescale the image explicitly at every window resize in a callback.
 <P>
 Conclusion: Software of advanced age.
 
+<BR CLEAR=ALL>
 <H3 name=GTK3>GTK3</H3>
-<IMG ALIGN=RIGHT SRC="gtk3.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-gtk3.png" WIDTH= HEIGHT=
      ALT="App window in GTK3">
 "The Even Bigger One". The "deprecated" window-sizing-strategy call that
 we used in GTK2 to be able to shrink the window has now been removed.
@@ -182,8 +114,9 @@ See https://bugzilla.gnome.org/show_bug.cgi?id=80925
 <P>
 Conclusion: Software of advanced age becoming senile.
 
+<BR CLEAR=ALL>
 <H3 name=IUP>IUP</H3>
-<IMG ALIGN=RIGHT SRC="agar.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-iup.png" WIDTH=202 HEIGHT=176
      ALT="App window in IUP on the X Window System">
 Another strange and rare GUI toolkit from PUC-Rio or, rather, a collection
 of graphic libraries by different authors that stack to provide a GUI toolkit.
@@ -195,30 +128,94 @@ visible artifacts when resizing small.
  <LI>It is even more prone than GTK to going into paxoxysms of catatonic
 100% CPU usage for tens of seconds at high image reductions.
 </UL>
-Audio: IUP doesn't have an audio layer of its own.
-<P>
 Conclusion: Another elaborate joke from PUC-Rio!
 
-<H3 name=QT4>QT4</H3>
-<IMG ALIGN=RIGHT SRC="at4.png" WIDTH= HEIGHT=
-     ALT="App window in QT4">
-In C++. Short. Zooming doesn't work yet.
-
+<BR CLEAR=ALL>
 <H3 name=SDL1>SDL1.2</H3>
-<IMG ALIGN=RIGHT SRC="sdl1.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-sdl1.png" WIDTH=202 HEIGHT=176
      ALT="App window in SDL 1.2">
 SDL isn't a GUI toolkit; it's a drawing library. For the simple test program
 it has the smallest code and the smallest executable.
 If you want anything more, you have to draw everything yourself
 and pilot it by keystrokes. SDL1 doesn't have an image scaler of its own,
-so we use the swscaler library, which results in laggy operation.
+so we use the swscale library, which results in laggy operation.
+<P>
+Conclusion: The oldest software of them all, surprising well maintained and
+successfully adapted to modern displays, considering it was born into a
+world of, at best, 640x480 VGA frame buffers. If you want buttons, menus etc,
+you have to draw them yourself.
 
+<BR CLEAR=ALL>
 <H3 name=SDL2>SDL2</H3>
-<IMG ALIGN=RIGHT SRC="sdl2.png" WIDTH= HEIGHT=
+<IMG ALIGN=RIGHT SRC="images/image1-sdl2.png" WIDTH=202 HEIGHT=176
      ALT="App window in SDL 2">
 As above, except that it now has its own image scaler.
 Its scaling is the fastest but its scaler is nearest-neighbour
 so it goes sparkly at small sizes.
+<P>
+Conclusion: Like SDL1, no widgets.
+
+<BR CLEAR=ALL>
+<H2 name=summary>Summary</H2>
+<U>Legend</U><BR>
+<UL>
+ <LI><I>Nearest:</I>
+A poor-quality fast scaling algorithm that makes the image
+sparkle as you resize it at high downscaling.
+ <LI><I>Bilinear:</I>
+A better-quality scaling algorithm produces smooth output when enlarging
+and when reducing, all input pixels contribute to the final output.
+ <LI><I>swscale:</I>
+A separate library specialising in scaling images in software.
+</UL>
+
+<TABLE border=1 rowpadding=1 cellspacing=1>
+ <TR>
+  <TH>Toolkit
+  <TH>Window size<BR>for 200x150
+  <TH>Scaler
+  <TH>Motion
+ <TR>
+  <TD>AGAR
+  <TD>203x177
+  <TD>Nearest
+  <TD>Buggy
+ <TR>
+  <TD>ELM
+  <TD>202x176
+  <TD>Bilinear
+  <TD>Jerky
+ <TR>
+  <TD>EVAS
+  <TD>202x176
+  <TD>Bilinear
+  <TD>Jerky
+ <TR>
+  <TD>GTK2
+  <TD>202x176
+  <TD>Bilinear
+  <TD>Sometimes pauses for minutes
+ <TR>
+  <TD>GTK3
+  <TD>202x176
+  <TD>Bilinear
+  <TD>Sometimes pauses for minutes
+ <TR>
+  <TD>IUP
+  <TD>202x176
+  <TD>Nearest
+  <TD>jerky, sometimes pauses for seconds
+ <TR>
+  <TD>SDL1
+  <TD>202x176
+  <TD>swscale
+  <TD>Fast but flickers to black between frames
+ <TR>
+  <TD>SDL2
+  <TD>202x176
+  <TD>Nearest
+  <TD>The fastest/smoothest of all
+</TABLE>
 <HR>
 Martin Guy &lt;martinwguy&#64;gmail.com>, November 2016.
 </BODY>
