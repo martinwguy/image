@@ -8,7 +8,10 @@
  * If they hit Control-Q or poke the [X] icon in the window's titlebar,
  * the application should quit.
  *
- * Bugs: None
+ * Bugs:
+ *    - If its window is covered by another window and the obsuring window
+ *	is moved, the image1-gtk2 window doesn't repaint, and exposed regions
+ *	remain white.
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */

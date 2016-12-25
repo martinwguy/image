@@ -19,6 +19,8 @@
  *	the desktop dimensions. When you move the window left to expose area on
  *	the right, its size wops out to the full 1:1 width and the newly-exposed
  *	area is all gray.
+ *    - Doesn't respond to "wmctrl -r image1-agar -e 0,500,300,200,150",
+ *	which should move and resize it.
  * Features:
  *    - The minimum window size is about 16x16 instead of 1x1.
  *    - The scaling is done to the nearest pixel, giving a shimmering effect
