@@ -1,16 +1,20 @@
 Here are two simple image file viewers written in different C GUI toolkits:
-AGAR, Enlightenment's ELM and Ecore_Evas interfaces, GTK2 and 3, IUP, SDL1 and 2.
+AGAR, Enlightenment's ELM and Ecore_Evas, GTK2 and 3, IUP, SDL1 and 2.
 
-image1 is given the image file as a command-line argument
+The program image1 is given the image file as a command-line argument
 with a default of image.jpg.
-The window should open to exactly fit the image at one-pixel-per-pixel size.
+The window should open fitting the image at one screen pixel per image pixel.
 The user can then resize the window and the image scales to fit the window
 without keeping its aspect ratio.
 If they hit Control-Q or poke the [X] icon in the window's titlebar,
 the application should quit.
 
+In: AGAR ELM EVAS GTK2 GTK3 IUP SDL1 SDL2
+
 image2 is the same but has a File-Open/Quit menu bar above the image.
 
-See image.html for details.
+In: AGAR ELM GTK2
+
+See image.html for how they fared.
 
     Martin Guy <martinwguy@gmail.com>, November 2016.
