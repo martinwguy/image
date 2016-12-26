@@ -31,16 +31,10 @@
 #include <agar/gui.h>
 
 /* Called when they hit the [X] in the title bar to make the application quit */
-static void
-QuitGUI_handler(AG_Event *event)
-{
-	AG_QuitGUI();
-}
+static void QuitGUI_handler(AG_Event *event) { AG_QuitGUI(); }
 
 int
-main(argc, argv)
-int argc;
-char **argv;
+main(int argc, char **argv)
 {
     AG_Window	*window;
     AG_Surface	*surface;
