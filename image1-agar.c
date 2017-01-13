@@ -14,15 +14,19 @@
  *	gets offset by half a window size, apparently to a random position.
  *	It remains there as you move the window about until you resize the
  *	window using one of its corners.
- *    - If you open an image wider than the desktop (here 4728x864) it first
- *	displays the whole image downscaled to the size of a window limited to
- *	the desktop dimensions. When you move the window left to expose area on
- *	the right, its size wops out to the full 1:1 width and the newly-exposed
- *	area is all gray.
- *    - Doesn't respond to "wmctrl -r image1-agar -e 0,500,300,200,150",
+ *    - On rare occasions it opens the image with its top left corner in the
+ *	center of the screen.
+ *    - If you open an image wider than the desktop (here 4728x864 using xfce)
+ *	it first displays the whole image downscaled to the size of a window
+ *	limited to the desktop dimensions. When you move the window left to
+ *	expose area on the right, its size wops out to the full 1:1 width
+ *	and the newly-exposed area is all gray. It repaints when you resize
+ *	the window.
+ *    - It doesn't respond to "wmctrl -r image1-agar -e 0,500,300,200,150",
  *	which should move and resize it.
  * Features:
- *    - The minimum window size is about 16x16 instead of 1x1.
+ *    - THe menus don't close when you move off them or press Escape.
+ *    - The minimum window size is 32x32 instead of 1x1.
  *    - The scaling is done to the nearest pixel, giving a shimmering effect
  *	to the image during window resizing.
  */

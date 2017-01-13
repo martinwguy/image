@@ -12,7 +12,7 @@
  * and "Quit".
  *
  * Bugs:
- *	None
+ *    - You can enlarge the image window but cannot shrink it again.
  *
  *	Martin Guy <martinwguy@gmail.com>, October 2016.
  */

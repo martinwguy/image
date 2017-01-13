@@ -32,8 +32,14 @@ of them and see which came out shortest/easiest/best.
 <H3 name=AGAR>AGAR</H3>
 <IMG ALIGN=LEFT SRC="images/agar.png" WIDTH=64 HEIGHT=64
      ALT="AGAR logo: a beard-smothered head smoking a pipe">
-<IMG ALIGN=RIGHT SRC="images/image1-agar.png" WIDTH=203 HEIGHT=177
-     ALT="App window in AGAR on X">
+<TABLE ALIGN=RIGHT border=0 cellspacing=0 celpadding=0>
+<TR><TD>
+<IMG SRC="images/image1-agar.png" WIDTH=203 HEIGHT=177
+     ALT="image1 in AGAR on X">
+<TR><TD>
+<IMG SRC="images/image2-agar.png" WIDTH=420 HEIGHT=548
+     ALT="image2 in AGAR on X">
+</TABLE>
 A strange and rare GUI toolkit from PUC-Rio. The documentation
 consists of just a reference manual but the code needed to get things done
 turns out to be refreshingly short. It compiles for Windows, Mac and Linux.
@@ -51,18 +57,19 @@ in the center of the window.
  <LI>The image-resizing speed is acceptable but it uses a poor resizing
      algorithm.
  <LI><A HREF="https://bugs.csoft.net/show_bug.cgi?id=227">The image is sometimes displayed skewed by 34 or 45 degrees or in greyscale</A>.
+ <LI>If you open an image wider than the desktop and move the window left,
+     the newly-exposed area is all gray.
  <LI>See the top of image-agar.c for even more bugs in AGAR.
      Since reporting some of these bugs weeks ago there has been no response
      or activity from its maintainer.
 </UL>
-Conclusion: Buggy abandonware.
 
 <BR CLEAR=ALL>
 <H3 name=ELM>ELM</H3>
 <IMG ALIGN=LEFT SRC="images/elementary.png" WIDTH=128 HEIGHT=128
      ALT="Elementary logo">
 <IMG ALIGN=RIGHT SRC="images/image1-elm.png" WIDTH=202 HEIGHT=176
-     ALT="App window in ELM on X">
+     ALT="image1 in ELM on X">
 The "Elementary" GUI toolkit of the Enlightenment Foundation Libraries.
 Runs on Windows, Mac, Linux, Android and iOS and is the native GTK for Tizen.
 <P>
@@ -75,62 +82,58 @@ The zoomed image is of superb quality (it looks like its algorithm is
 the same as GTK's), zooming smoothly as the window is resized.
 <P>
 It requires the least lines of code, of the ones that work.
-<P>
-Conclusion: A promising adolscent, as software goes: brilliant and quirky but
-difficult to live with.
 
 <BR CLEAR=ALL>
 <H3 name=EVAS>EVAS</H3>
 <IMG ALIGN=LEFT SRC="images/enlightenment.png" WIDTH=55 HEIGHT=60
      ALT="Enlightenment logo">
 <IMG ALIGN=RIGHT SRC="images/image1-evas.png" WIDTH=202 HEIGHT=176
-     ALT="App window in Ecore_Evas on X">
+     ALT="image1 in Ecore_Evas on X">
 The "Ecore_Evas" component of the Enlightenment Foundation Libraries,
 a lower-level part of EFL giving just a drawing canvas and no widgets.
-<P>
-Conclusion: Getting it to work is a strange game, but when it does it is
-rock-solid.
 
 <BR CLEAR=ALL>
 <H3 name=GTK2>GTK2</H3>
 <IMG ALIGN=LEFT SRC="images/gtk2.png" WIDTH=118 HEIGHT=128
      ALT="GTK logo">
 <IMG ALIGN=RIGHT SRC="images/image1-gtk2.png" WIDTH=202 HEIGHT=176
- ALT="App window in GTK2">
+ ALT="image1 in GTK2 on X">
 Old and crusty, detailed documentation, examples and wisdom
 are abundant. I banged my head against GTK2 for two or three days before
 succeeding in getting it to work. Despite its age, it is buggy.
 <P>
-The resized image quality is excellent, the speed acceptable but a little laggy.
-You have rescale the image explicitly at every window resize in a callback.
-<P>
-Conclusion: Software of advanced age.
+You have to rescale the image explicitly at every window resize in a callback.
+The resized image quality is excellent and the speed acceptable if laggy.
 
 <BR CLEAR=ALL>
 <H3 name=GTK3>GTK3</H3>
 <IMG ALIGN=LEFT SRC="images/gtk3.png" WIDTH=130 HEIGHT=134
      ALT="GTK3 logo">
 <IMG ALIGN=RIGHT SRC="images/image1-gtk3.png" WIDTH=202 HEIGHT=176
-     ALT="App window in GTK3 on the X Window System">
-"The Even Bigger One". The "deprecated" window-sizing-strategy call that
-we used in GTK2 to be able to shrink the window has now been removed.
-The bizarre trick with GTK3 instead is to put the image in a rare kind of
-invisible container.
+     ALT="image1 in GTK3 on X">
+"The Even Bigger One". More interlinked web documentation, examples and
+forum snippets even than GTK2.
 <P>
-GTK2 and 3 have a bug in common: if you scale an image down by a large factor,
+Unfortunately, the deprecated set-window-sizing-strategy call that we used in
+GTK2 to make the window shrink has been removed.
+A bizarre trick that works with GTK3 is to put the image inside a rare kind of
+invisible container on which you set some properties. Gak!
+<P>
+GTK2 and 3 have <A HREF="https://bugzilla.gnome.org/show_bug.cgi?id=80925">a
+14-year-old bug in common</A>: if you scale an image down by a large factor,
 the "filter tables" bloat out to 900MB of active RAM and it has a 100% CPU
 epileptic fit lasting tens of seconds. The code here has workarounds for the
-worst cases and a better workaround should appear from upstream sooner or later.
-See https://bugzilla.gnome.org/show_bug.cgi?id=80925
-<P>
-Conclusion: Software of advanced age becoming senile.
+worst cases and I've submitted a better workaround to the maintainers of
+the affected library, gdk-pixbuf. However, instead of fixing it or helping,
+they seem more intent on raising one silly objection after the other.
+That would explain why GTK is still full of bugs!
 
 <BR CLEAR=ALL>
 <H3 name=IUP>IUP</H3>
 <IMG ALIGN=LEFT SRC="images/iup.png" WIDTH=66 HEIGHT=66
      ALT="IUP logo">
 <IMG ALIGN=RIGHT SRC="images/image1-iup.png" WIDTH=202 HEIGHT=176
-     ALT="App window in IUP on the X Window System">
+     ALT="image1 in IUP on X">
 Another strange and rare GUI toolkit from PUC-Rio or, rather, a collection
 of graphic libraries by different authors that stack to provide a GUI toolkit.
 <P>
@@ -141,23 +144,21 @@ visible artifacts when resizing small.
  <LI>It is even more prone than GTK to going into paxoxysms of catatonic
 100% CPU usage for tens of seconds at high image reductions.
 </UL>
-Conclusion: Another elaborate joke from PUC-Rio!
 
 <BR CLEAR=ALL>
 <H3 name=SDL1>SDL1.2</H3>
 <IMG ALIGN=LEFT SRC="images/sdl.png" WIDTH=179 HEIGHT=99
      ALT="SDL logo">
 <IMG ALIGN=RIGHT SRC="images/image1-sdl1.png" WIDTH=202 HEIGHT=176
-     ALT="App window in SDL 1.2">
+     ALT="image1 in SDL 1.2 on X">
 SDL isn't a GUI toolkit; it's a drawing library. For the simple test program
 it has the smallest code and the smallest executable.
 If you want anything more, you have to draw everything yourself
 and pilot it by keystrokes. SDL1 doesn't have an image scaler of its own,
 so we use the swscale library, which results in laggy operation.
 <P>
-Conclusion: The oldest software of them all, surprising well maintained and
-successfully adapted to modern displays, considering it was born into a
-world of, at best, 640x480 VGA frame buffers. If you want buttons, menus etc,
+Although this is the oldest software of them all, it is well maintained and
+successfully adapted to modern displays. If you want buttons, menus etc,
 you have to draw them yourself.
 
 <BR CLEAR=ALL>
@@ -165,12 +166,12 @@ you have to draw them yourself.
 <IMG ALIGN=LEFT SRC="images/sdl2.png" WIDTH=150 HEIGHT=90
      ALT="SDL 2.0 logo">
 <IMG ALIGN=RIGHT SRC="images/image1-sdl2.png" WIDTH=202 HEIGHT=176
-     ALT="App window in SDL 2">
+     ALT="image1 in SDL 2.0 on X">
 As above, except that it now has its own image scaler.
 Its scaling is the fastest but its scaler is nearest-neighbour
 so it goes sparkly at small sizes.
 <P>
-Conclusion: Like SDL1, no widgets.
+Like SDL1, you have to draw user-interface items yourself.
 
 <BR CLEAR=ALL>
 <H2 name=summary>Summary</H2>
@@ -234,6 +235,6 @@ A separate library specialising in scaling images in software.
   <TD>The fastest/smoothest of all
 </TABLE>
 <HR>
-Martin Guy &lt;martinwguy&#64;gmail.com>, November 2016.
+Martin Guy &lt;martinwguy&#64;gmail.com>, November-December 2016.
 </BODY>
 </HTML>
