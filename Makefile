@@ -73,6 +73,8 @@ image1-qt4/Makefile: image1-qt4/image1-qt4.pro
 image1-qt4/image1-qt4.pro:
 	cd image1-qt4 && qmake -project
 
+IMAGE=image.jpg
+
 show: $(ALL)
 	for a in $(ALL); do ./$$a $(IMAGE) & done
 
