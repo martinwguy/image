@@ -30,7 +30,6 @@ main(argc, argv)
 int argc;
 char **argv;
 {
-    SDL_Surface *window;
     SDL_Surface *screen;
     SDL_Surface *sourceImage;	/* As read from file */
     SDL_Event	event;
